@@ -1,0 +1,6 @@
+.DS_Store
+/config.log
+/config.status
+/cublas.buildinfo
+/configure
+/dist/
