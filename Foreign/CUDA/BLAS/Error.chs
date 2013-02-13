@@ -22,7 +22,14 @@ import Control.Exception
 -- Describe each error code
 --
 describe :: Status -> String
-describe _ = ""
+describe Success         = "success"
+describe NotInitialized  = "library not initialised"
+describe AllocFailed     = "resource allocation failed"
+describe InvalidValue    = "unsupported value or parameter passed to a function"
+describe ArchMismatch    = "unsupported on current architecture"
+describe MappingError    = "access to GPU memory failed"
+describe ExecutionFailed = "execution failed"
+describe InternalError   = "internal error"
 
 
 -- Exceptions ------------------------------------------------------------------
