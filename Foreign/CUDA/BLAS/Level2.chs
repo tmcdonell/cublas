@@ -22,7 +22,7 @@ import Foreign.CUDA.Ptr
 import Foreign
 import Foreign.C
 
-#include <cublas_v2.h>
+#include "cbits/stubs.h"
 {# context lib="cublas" #}
 
 

@@ -9,7 +9,7 @@ module Foreign.CUDA.BLAS.Error
 import Data.Typeable
 import Control.Exception
 
-#include <cublas_v2.h>
+#include "cbits/stubs.h"
 {# context lib="cublas" #}
 
 
@@ -30,6 +30,7 @@ describe ArchMismatch    = "unsupported on current architecture"
 describe MappingError    = "access to GPU memory failed"
 describe ExecutionFailed = "execution failed"
 describe InternalError   = "internal error"
+describe NotSupported    = "not supported"
 
 
 -- Exceptions ------------------------------------------------------------------
