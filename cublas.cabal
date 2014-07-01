@@ -11,13 +11,13 @@ category:               Foreign
 cabal-version:          >=1.8
 
 build-type:             Configure
-Extra-tmp-files:        cuda.buildinfo config.status config.log
+Extra-tmp-files:        cublas.buildinfo config.status config.log
 Extra-source-files:     configure
                         configure.ac
                         config.guess
                         config.sub
                         install-sh
-                        cuda.buildinfo.in
+                        cublas.buildinfo.in
                         cbits/stubs.h
 
 library
