@@ -4,3 +4,6 @@
 /cublas.buildinfo
 /configure
 /dist/
+/.stack-work
+/stack.yaml
+/cublas.buildinfo.generated

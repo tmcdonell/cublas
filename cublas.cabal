@@ -1,40 +1,72 @@
 name:                   cublas
-version:                0.1.0.0
+version:                0.3.0.0
 synopsis:               FFI bindings to the CUDA BLAS library
-description:            FFI bindings to the NVIDIA CUDA Basic Linear Algebra library
+description:
+    The cuBLAS library is an implementation of BLAS (Basic Linear Algebra
+    Subprograms) for NVIDIA GPUs. This package provides FFI bindings to the
+    functions of the cuBLAS library. You will need to install the CUDA driver
+    and developer toolkit:
+    .
+    <http://developer.nvidia.com/cuda-downloads>
+    .
+    Tested with version 8.0 of the CUDA toolkit.
+
 license:                BSD3
 license-file:           LICENSE
 author:                 Trevor L. McDonell
 maintainer:             Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
-copyright:              Copyright (c) [2012..2013]. Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
+copyright:              Copyright (c) [2012..2017]. Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
 category:               Foreign
 cabal-version:          >=1.8
 
-build-type:             Configure
-Extra-tmp-files:        cublas.buildinfo config.status config.log
-Extra-source-files:     configure
-                        configure.ac
-                        config.guess
-                        config.sub
-                        install-sh
-                        cublas.buildinfo.in
-                        cbits/stubs.h
+build-type:             Custom
+extra-tmp-files:        cublas.buildinfo.generated
+extra-source-files:
+  README.md
+  CHANGELOG.md
+  cbits/stubs.h
+
+custom-setup
+  setup-depends:
+      base              >= 4.6
+    , Cabal             >= 1.22
+    , cuda              >= 0.8
+    , directory         >= 1.0
+    , filepath          >= 1.0
 
 library
-  exposed-modules:      Foreign.CUDA.BLAS
-                        Foreign.CUDA.BLAS.Level1
-                        Foreign.CUDA.BLAS.Level2
-                        Foreign.CUDA.BLAS.Context
-
-  other-modules:        Foreign.CUDA.BLAS.Error
-                        Foreign.CUDA.BLAS.Internal.C2HS
-
-  build-depends:        base == 4.*,
-                        cuda >= 0.4.1
-
+  hs-source-dirs:       .
   include-dirs:         .
-  c-sources:
+
+  exposed-modules:
+      Foreign.CUDA.BLAS
+      Foreign.CUDA.BLAS.Level1
+      Foreign.CUDA.BLAS.Level2
+      Foreign.CUDA.BLAS.Context
+
+  other-modules:
+      Foreign.CUDA.BLAS.Error
+      Foreign.CUDA.BLAS.Internal.C2HS
+
+  build-depends:
+        base            == 4.*
+      , cuda            >= 0.8
 
   build-tools:          c2hs >= 0.16
-  ghc-options:          -Wall -O2 -funbox-strict-fields -fwarn-tabs
+  ghc-options:
+      -Wall
+      -O2
+      -funbox-strict-fields
+      -fwarn-tabs
+
+source-repository head
+    type:               git
+    location:           https://github.com/tmcdonell/cublas
+
+source-repository this
+    type:               git
+    location:           https://github.com/tmcdonell/cublas
+    tag:                0.3.0.0
+
+-- vim: nospell
 
