@@ -9,11 +9,16 @@ module Foreign.CUDA.BLAS.Error
 import Data.Typeable
 import Control.Exception
 
+import Foreign.C.Types
+import Foreign.CUDA.BLAS.Internal.C2HS
+
 #include "cbits/stubs.h"
 {# context lib="cublas" #}
 
 
--- Error codes -----------------------------------------------------------------
+-- | Error codes used by cuBLAS library functions
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublasstatus_t>
 --
 {# enum cublasStatus_t as Status
   { underscoreToCase }
@@ -31,6 +36,9 @@ describe MappingError    = "access to GPU memory failed"
 describe ExecutionFailed = "execution failed"
 describe InternalError   = "internal error"
 describe NotSupported    = "not supported"
+#if CUDA_VERSION >= 8000
+describe LicenseError    = "license error"
+#endif
 
 
 -- Exceptions ------------------------------------------------------------------
@@ -71,4 +79,7 @@ nothingIfOk status =
     case status of
         Success -> return  ()
         _       -> throwIO (ExitCode status)
+
+checkStatus :: CInt -> IO ()
+checkStatus = nothingIfOk . cToEnum
 

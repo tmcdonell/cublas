@@ -40,12 +40,14 @@ library
 
   exposed-modules:
       Foreign.CUDA.BLAS
+      Foreign.CUDA.BLAS.Context
+      Foreign.CUDA.BLAS.Error
       Foreign.CUDA.BLAS.Level1
       Foreign.CUDA.BLAS.Level2
-      Foreign.CUDA.BLAS.Context
+      Foreign.CUDA.BLAS.Stream
+      Foreign.CUDA.BLAS.Types
 
   other-modules:
-      Foreign.CUDA.BLAS.Error
       Foreign.CUDA.BLAS.Internal.C2HS
 
   build-depends:
