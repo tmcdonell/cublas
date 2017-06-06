@@ -49,10 +49,12 @@ library
 
   other-modules:
       Foreign.CUDA.BLAS.Internal.C2HS
+      Foreign.CUDA.BLAS.Internal.FFI
 
   build-depends:
-        base            == 4.*
-      , cuda            >= 0.8
+        base                            == 4.*
+      , cuda                            >= 0.8
+      , storable-complex                >= 0.2
 
   build-tools:          c2hs >= 0.16
   ghc-options:
