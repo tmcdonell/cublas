@@ -1,5 +1,14 @@
 {-# LANGUAGE CPP                      #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+-- |
+-- Module      : Foreign.CUDA.BLAS.Level1
+-- Copyright   : [2014..2017] Trevor L. McDonell
+-- License     : BSD3
+--
+-- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
+-- Stability   : experimental
+-- Portability : non-portable (GHC extensions)
+--
 
 module Foreign.CUDA.BLAS.Level1 (
 

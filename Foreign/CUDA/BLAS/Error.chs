@@ -1,6 +1,15 @@
 {-# LANGUAGE CPP                      #-}
 {-# LANGUAGE DeriveDataTypeable       #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+-- |
+-- Module      : Foreign.CUDA.BLAS.Error
+-- Copyright   : [2014..2017] Trevor L. McDonell
+-- License     : BSD3
+--
+-- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
+-- Stability   : experimental
+-- Portability : non-portable (GHC extensions)
+--
 
 module Foreign.CUDA.BLAS.Error
   where
