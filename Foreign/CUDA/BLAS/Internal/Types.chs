@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP                      #-}
+{-# LANGUAGE EmptyDataDecls           #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Internal.Types
@@ -108,5 +109,19 @@ newtype Handle = Handle { useHandle :: {# type cublasHandle_t #}}
 {# enum cublasDataType_t as Type
   { underscoreToCase }
   with prefix="CUDA" deriving (Eq, Show) #}
+#endif
+
+
+-- | Used to run <http://docs.nvidia.com/cuda/cublas/index.html#cublas-GemmEx gemmEx>
+-- with a specific, yet completely unspecified, algorithm.
+--
+#if CUDA_VERSION < 8000
+data GemmAlgorithm
+#else
+{# enum cublasGemmAlgo_t as GemmAlgorithm
+  { underscoreToCase
+  , CUBLAS_GEMM_DFALT as GemmDefault
+  }
+  with prefix="CUBLAS" deriving (Eq, Show) #}
 #endif
 

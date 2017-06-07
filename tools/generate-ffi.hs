@@ -28,14 +28,20 @@ main = do
                 , "Fill(..)"
                 , "Diagonal(..)"
                 ]
-      l3exps  = l2exps ++ [ "Side(..)", "Type(..)" ]
+      l3exps  = l2exps ++
+                [ "Side(..)"
+                , "Type(..)"
+                , "GemmAlgorithm(..)"
+                ]
   --
-  mkC2HS "Level1" (docs 1) l1exps funsL1
-  mkC2HS "Level2" (docs 2) l2exps funsL2
-  mkC2HS "Level3" (docs 3) l3exps funsL3
+  mkC2HS "Level1" (docs 1) l1exps [(Nothing,   funsL1)]
+  mkC2HS "Level2" (docs 2) l2exps [(Nothing,   funsL2)]
+  mkC2HS "Level3" (docs 3) l3exps [(Nothing,   funsL3)
+                                  ,(Just 8000, funsL3_c8)
+                                  ]
 
 
-mkC2HS :: String -> [String] -> [String] -> [FunGroup] -> IO ()
+mkC2HS :: String -> [String] -> [String] -> [(Maybe Int, [FunGroup])] -> IO ()
 mkC2HS mdl docs exps funs =
   let exts    = [ "CPP"
                 , "ForeignFunctionInterface"
@@ -50,12 +56,7 @@ mkC2HS mdl docs exps funs =
                 , "Foreign.CUDA.BLAS.Internal.C2HS"
                 , "Foreign.CUDA.BLAS.Internal.Types"
                 ]
-      fis     = funInsts Unsafe funs
-      exps'   = exps ++ map cfName fis
-      body    = "#include \"cbits/stubs.h\""
-              : "{# context lib=\"cublas\" #}"
-              : ""
-              : "{-# INLINE useDevP #-}"
+      body    = "{-# INLINE useDevP #-}"
               : "useDevP :: DevicePtr a -> Ptr b"
               : "useDevP = useDevicePtr . castDevPtr"
               : ""
@@ -63,7 +64,16 @@ mkC2HS mdl docs exps funs =
               : "useHostP :: HostPtr a -> Ptr b"
               : "useHostP = useHostPtr . castHostPtr"
               : ""
-              : map mkFun fis
+              : content
+
+      wrap f (Nothing, fg) = f fg
+      wrap f (Just v,  fg) = printf "#if CUDA_VERSION >= %d" v
+                           : f fg
+                          ++ ["#endif"]
+
+      fis     = map (\(r,f) -> (r, funInsts Unsafe f)) funs
+      exps'   = exps ++ concatMap (wrap (map cfName)) fis
+      content = concatMap (wrap (map mkFun)) fis
   in
   writeFile path $ mkModule exts name docs exps' imps body
 
@@ -82,6 +92,9 @@ mkModule exts name docs exps imps body =
     : "-- This module is auto-generated. Do not edit directly."
     : "--"
     : ""
+    : "#include \"cbits/stubs.h\""
+    : "{# context lib=\"cublas\" #}"
+    : ""
     : map (printf "{-# LANGUAGE %s #-}") exts
    ++ "{-# OPTIONS_GHC -fno-warn-unused-imports #-}"
     : "{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}"
@@ -97,7 +110,7 @@ mkModule exts name docs exps imps body =
     : map (\x -> if null x then "--" else "-- " ++ x) docs
    ++ ""
     : printf "module %s (\n" (intercalate "." name)
-    : map (printf "  %s,") exps
+    : map (\x -> if head x == '#' then x else printf "  %s," x) exps
    ++ printf "\n) where"
     : ""
     : map (printf "import %s") imps
@@ -298,6 +311,9 @@ int = TInt Nothing
 int32 :: Type
 int32 = TInt (Just 32)
 
+int64 :: Type
+int64 = TInt (Just 64)
+
 half :: Type
 half = THalf
 
@@ -424,6 +440,29 @@ funsL3 =
   , gp  $          ext "sgemmEx"        [ transpose, transpose, int, int, int, ptr float, dptr void, dtype, int, dptr void, dtype, int, ptr float, dptr void, dtype, int ]
   ]
 
+-- Level 3 operations introduced in CUDA-8
+--
+funsL3_c8 :: [FunGroup]
+funsL3_c8 =
+  [ gpC $ \ a   -> ext "?gemm3m"    [ transpose, transpose, int, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpH $ \ a   -> ext "?gemmStridedBatched"
+                                    [ transpose, transpose, int, int, int, ptr a, dptr a, int, int64, dptr a, int, int64, ptr a, dptr a, int, int64, int ]
+  , gp  $          ext "cgemm3mStridedBatched"
+                                    [ transpose, transpose, int, int, int, ptr (complex float), dptr (complex float), int, int64, dptr (complex float), int, int64, ptr (complex float), dptr (complex float), int, int64, int ]
+  , gp  $          ext "cgemmEx"    [ transpose, transpose, int, int, int, ptr (complex float), dptr void, dtype, int, dptr void, dtype, int, ptr (complex float), dptr void, dtype, int ]
+  , gp  $          ext "gemmEx"     [ transpose, transpose, int, int, int, ptr void, dptr void, dtype, int, dptr void, dtype, int, ptr void, dptr void, dtype, int, dtype, TEnum "GemmAlgorithm" ]
+  , gp  $          ext "csyrkEx"    [ uplo, transpose, int, int, ptr float, dptr void, dtype, int, ptr float, dptr (complex float), dtype, int ]
+  , gp  $          ext "csyrk3mEx"  [ uplo, transpose, int, int, ptr float, dptr void, dtype, int, ptr float, dptr (complex float), dtype, int ]
+  , gp  $          ext "cherkEx"    [ uplo, transpose, int, int, ptr float, dptr void, dtype, int, ptr float, dptr (complex float), dtype, int ]
+  , gp  $          ext "cherk3mEx"  [ uplo, transpose, int, int, ptr float, dptr void, dtype, int, ptr float, dptr (complex float), dtype, int ]
+  , gp  $          ext "nrm2Ex"     [ int, dptr void, dtype, int, ptr void, dtype, dtype ]
+  , gp  $          ext "axpyEx"     [ int, ptr void, dtype, dptr void, dtype, int, dptr void, dtype, int, dtype ]
+  , gp  $          ext "dotEx"      [ int, dptr void, dtype, int, dptr void, dtype, int, ptr void, dtype, dtype ]
+  , gp  $          ext "dotcEx"     [ int, dptr void, dtype, int, dptr void, dtype, int, ptr void, dtype, dtype ]
+  , gp  $          ext "scalEx"     [ int, ptr void, dtype, dptr void, dtype, int, dtype ]
+  ]
+
+
 data FunGroup
   = FunGroup
     { _gpName :: String
@@ -437,6 +476,10 @@ gp f = FunGroup (fName f) (fTypes f) [FunInstance [] f]
 -- | Function group over @s d c z@.
 gpA :: (Type -> Fun) -> FunGroup
 gpA = makeFunGroup1 decorate floatingTypes
+
+-- | Function group over @s d c z h@
+gpH :: (Type -> Fun) -> FunGroup
+gpH = makeFunGroup1 decorate (floatingTypes <> return half)
 
 -- | Function group over @s d@.
 gpR :: (Type -> Fun) -> FunGroup

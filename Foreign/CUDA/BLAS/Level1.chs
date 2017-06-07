@@ -2,6 +2,9 @@
 -- This module is auto-generated. Do not edit directly.
 --
 
+#include "cbits/stubs.h"
+{# context lib="cublas" #}
+
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
@@ -86,9 +89,6 @@ import Foreign.Storable.Complex ()
 import Foreign.CUDA.Ptr
 import Foreign.CUDA.BLAS.Internal.C2HS
 import Foreign.CUDA.BLAS.Internal.Types
-
-#include "cbits/stubs.h"
-{# context lib="cublas" #}
 
 {-# INLINE useDevP #-}
 useDevP :: DevicePtr a -> Ptr b

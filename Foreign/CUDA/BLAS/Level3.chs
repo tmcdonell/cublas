@@ -2,6 +2,9 @@
 -- This module is auto-generated. Do not edit directly.
 --
 
+#include "cbits/stubs.h"
+{# context lib="cublas" #}
+
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
@@ -27,6 +30,7 @@ module Foreign.CUDA.BLAS.Level3 (
   Diagonal(..),
   Side(..),
   Type(..),
+  GemmAlgorithm(..),
   sgemm,
   dgemm,
   cgemm,
@@ -113,6 +117,27 @@ module Foreign.CUDA.BLAS.Level3 (
   ctrttp,
   ztrttp,
   sgemmEx,
+#if CUDA_VERSION >= 8000
+  cgemm3m,
+  zgemm3m,
+  sgemmStridedBatched,
+  dgemmStridedBatched,
+  cgemmStridedBatched,
+  zgemmStridedBatched,
+  hgemmStridedBatched,
+  cgemm3mStridedBatched,
+  cgemmEx,
+  gemmEx,
+  csyrkEx,
+  csyrk3mEx,
+  cherkEx,
+  cherk3mEx,
+  nrm2Ex,
+  axpyEx,
+  dotEx,
+  dotcEx,
+  scalEx,
+#endif
 
 ) where
 
@@ -123,9 +148,6 @@ import Foreign.Storable.Complex ()
 import Foreign.CUDA.Ptr
 import Foreign.CUDA.BLAS.Internal.C2HS
 import Foreign.CUDA.BLAS.Internal.Types
-
-#include "cbits/stubs.h"
-{# context lib="cublas" #}
 
 {-# INLINE useDevP #-}
 useDevP :: DevicePtr a -> Ptr b
@@ -393,3 +415,62 @@ useHostP = useHostPtr . castHostPtr
 
 {-# INLINEABLE sgemmEx #-}
 {# fun unsafe cublasSgemmEx as sgemmEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+#if CUDA_VERSION >= 8000
+
+{-# INLINEABLE cgemm3m #-}
+{# fun unsafe cublasCgemm3m as cgemm3m { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', useDevP `DevicePtr (Complex Float)', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgemm3m #-}
+{# fun unsafe cublasZgemm3m as zgemm3m { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgemmStridedBatched #-}
+{# fun unsafe cublasSgemmStridedBatched as sgemmStridedBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr Float', `Int', `Int64', useDevP `DevicePtr Float', `Int', `Int64', castPtr `Ptr Float', useDevP `DevicePtr Float', `Int', `Int64', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgemmStridedBatched #-}
+{# fun unsafe cublasDgemmStridedBatched as dgemmStridedBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Double', useDevP `DevicePtr Double', `Int', `Int64', useDevP `DevicePtr Double', `Int', `Int64', castPtr `Ptr Double', useDevP `DevicePtr Double', `Int', `Int64', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgemmStridedBatched #-}
+{# fun unsafe cublasCgemmStridedBatched as cgemmStridedBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', `Int64', useDevP `DevicePtr (Complex Float)', `Int', `Int64', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', `Int64', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgemmStridedBatched #-}
+{# fun unsafe cublasZgemmStridedBatched as zgemmStridedBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int', `Int64', useDevP `DevicePtr (Complex Double)', `Int', `Int64', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int', `Int64', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE hgemmStridedBatched #-}
+{# fun unsafe cublasHgemmStridedBatched as hgemmStridedBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Half', useDevP `DevicePtr Half', `Int', `Int64', useDevP `DevicePtr Half', `Int', `Int64', castPtr `Ptr Half', useDevP `DevicePtr Half', `Int', `Int64', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgemm3mStridedBatched #-}
+{# fun unsafe cublasCgemm3mStridedBatched as cgemm3mStridedBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', `Int64', useDevP `DevicePtr (Complex Float)', `Int', `Int64', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', `Int64', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgemmEx #-}
+{# fun unsafe cublasCgemmEx as cgemmEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr ()', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE gemmEx #-}
+{# fun unsafe cublasGemmEx as gemmEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr ()', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr ()', useDevP `DevicePtr ()', cFromEnum `Type', `Int', cFromEnum `Type', cFromEnum `GemmAlgorithm' } -> `()' checkStatus* #}
+
+{-# INLINEABLE csyrkEx #-}
+{# fun unsafe cublasCsyrkEx as csyrkEx { useHandle `Handle', cFromEnum `Fill', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr (Complex Float)', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE csyrk3mEx #-}
+{# fun unsafe cublasCsyrk3mEx as csyrk3mEx { useHandle `Handle', cFromEnum `Fill', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr (Complex Float)', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cherkEx #-}
+{# fun unsafe cublasCherkEx as cherkEx { useHandle `Handle', cFromEnum `Fill', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr (Complex Float)', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cherk3mEx #-}
+{# fun unsafe cublasCherk3mEx as cherk3mEx { useHandle `Handle', cFromEnum `Fill', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr (Complex Float)', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE nrm2Ex #-}
+{# fun unsafe cublasNrm2Ex as nrm2Ex { useHandle `Handle', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr ()', cFromEnum `Type', cFromEnum `Type' } -> `()' checkStatus* #}
+
+{-# INLINEABLE axpyEx #-}
+{# fun unsafe cublasAxpyEx as axpyEx { useHandle `Handle', `Int', castPtr `Ptr ()', cFromEnum `Type', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', cFromEnum `Type' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dotEx #-}
+{# fun unsafe cublasDotEx as dotEx { useHandle `Handle', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr ()', cFromEnum `Type', cFromEnum `Type' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dotcEx #-}
+{# fun unsafe cublasDotcEx as dotcEx { useHandle `Handle', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr ()', cFromEnum `Type', cFromEnum `Type' } -> `()' checkStatus* #}
+
+{-# INLINEABLE scalEx #-}
+{# fun unsafe cublasScalEx as scalEx { useHandle `Handle', `Int', castPtr `Ptr ()', cFromEnum `Type', useDevP `DevicePtr ()', cFromEnum `Type', `Int', cFromEnum `Type' } -> `()' checkStatus* #}
+#endif
