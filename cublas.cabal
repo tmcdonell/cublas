@@ -54,6 +54,7 @@ library
   build-depends:
         base                            == 4.*
       , cuda                            >= 0.8
+      , half                            >= 0.1
       , storable-complex                >= 0.2
 
   build-tools:          c2hs >= 0.16

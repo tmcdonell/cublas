@@ -43,6 +43,7 @@ mkC2HS mdl docs exps funs =
       name    = [ "Foreign", "CUDA", "BLAS", mdl ]
       path    = intercalate "/" name ++ ".chs"
       imps    = [ "Data.Complex"
+                , "Numeric.Half"
                 , "Foreign"
                 , "Foreign.Storable.Complex ()"
                 , "Foreign.CUDA.Ptr"
@@ -78,7 +79,8 @@ mkModule exts name docs exps imps body =
     : "--"
     : ""
     : map (printf "{-# LANGUAGE %s #-}") exts
-   ++ "-- |"
+   ++ "{-# OPTIONS_GHC -fno-warn-unused-imports #-}"
+    : "-- |"
     :("-- Module      : " ++ intercalate "." name)
     : "-- Copyright   : [2017] Trevor L. McDonell"
     : "-- License     : BSD3"
@@ -101,14 +103,14 @@ mkModule exts name docs exps imps body =
 -- | Generates a c2hs hook for the function.
 --
 mkFun :: CFun -> String
-mkFun (CFun safe name params ret doc) =
+mkFun (CFun safe name suffix params ret doc) =
   intercalate "\n"
     [ if null doc then "" else "-- | " <> doc
     , printf "{-# INLINEABLE %s #-}" name
     , printf "{# fun%s %s%s { %s } -> %s #}" safe' cName hName params' ret'
     ]
   where
-    cName   = funMangler name
+    cName   = funMangler name suffix
     hName   = if name == cName then "" else " as " <> name
     safe'   = if safe then "" else " unsafe"
     params' = intercalate ", " $ fmap (mkParamType . convType) params
@@ -127,6 +129,7 @@ data Type
   | TVoid
   | TPtr (Maybe AddrSpace) Type
   | TInt
+  | THalf -- 16-bit floating-point type
   | TFloat
   | TDouble
   | TComplex Type
@@ -165,15 +168,19 @@ floatingTypesE = do
 --
 data Fun
   = Fun
-    { fName  :: String
-    , fTypes :: [Type]
-    , _fDoc  :: String
+    { fName     :: String
+    , _fSuffix  :: String
+    , fTypes    :: [Type]
+    , _fDoc     :: String
     }
 
 -- | Construct a 'Fun'.
 --
 fun :: String -> [Type] -> Fun
-fun name types = Fun name types ""
+fun name types = Fun name "_v2" types ""
+
+ext :: String -> [Type] -> Fun
+ext name types = Fun name "" types ""
 
 -- | Represents a marshallable C type for c2hs.
 --
@@ -197,23 +204,18 @@ mkRetType (HType _ s m) =
 --
 data CFun
   = CFun
-    { cfSafe    :: Bool
+    { _cfSafe   :: Bool
     , cfName    :: String
+    , _cfSuffix :: String
     , _cfParams :: [Type]
     , _cfRet    :: Type
-    , cfDoc     :: String
+    , _cfDoc    :: String
     }
 
 -- | Construct a 'CFun'.
 --
-cFun :: String -> [Type] -> Type -> CFun
-cFun name params ret = CFun True name params ret ""
-
--- unreturnable :: Type -> Bool
--- unreturnable t = case t of
---   TComplex TFloat  -> True
---   TComplex TDouble -> True
---   _                -> False
+-- cFun :: String -> String -> [Type] -> Type -> CFun
+-- cFun name suffix params ret = CFun True name suffix params ret ""
 
 substitute :: String -> String -> String
 substitute s y = case y of
@@ -226,6 +228,7 @@ substitute s y = case y of
 
 typeAbbrev :: Type -> String
 typeAbbrev t = case t of
+  THalf            -> "h"
   TFloat           -> "s"
   TDouble          -> "d"
   TComplex TFloat  -> "c"
@@ -247,19 +250,16 @@ convType t = case t of
   TVoid             -> simple "()"
   TInt              -> simple "Int"
   TEnum t'          -> enum t'
+  THalf             -> floating "Half"
   TFloat            -> floating "Float"
   TDouble           -> floating "Double"
-  -- TComplex t'       -> case t' of
-  --   TFloat  -> complex_ "Complex Float"
-  --   TDouble -> complex_ "Complex Double"
-  --   _       -> error $ "can not marshal type type: " <> show t
-  TPtr as t'        -> pointer as $ case t' of
-    TInt              -> "Int"
-    TFloat            -> "Float"
-    TDouble           -> "Double"
-    TComplex TFloat   -> "(Complex Float)"
-    TComplex TDouble  -> "(Complex Double)"
-    _                 -> error $ "can not marshal type: " <> show t
+  TComplex TFloat   -> simple "(Complex Float)"
+  TComplex TDouble  -> simple "(Complex Double)"
+  TPtr as t'        -> pointer as
+                     $ case convType t' of
+                         HType _ s _ -> case t' of
+                                          TPtr{} -> printf "(%s)" s
+                                          _      -> s
   THandle           -> HType "useHandle" "Handle" ""
   TStatus           -> HType "" "()" "checkStatus*"
   _                 -> error $ "unmarshallable type: " <> show t
@@ -267,7 +267,6 @@ convType t = case t of
     simple s    = HType "" s ""
     enum s      = HType "cFromEnum" s "cToEnum"
     floating s  = HType ("C" <> s) s ("fromC" <> s)
-    -- complex_ s  = HType "withVoidPtr*" s ""
     --
     pointer Nothing s       = HType "castPtr"  ("Ptr " <> s) ""
     pointer (Just Host) s   = HType "useHostP" ("HostPtr " <> s) ""
@@ -276,20 +275,20 @@ convType t = case t of
 
 -- shortcuts
 
-void :: Type
-void = TVoid
-
 ptr :: Type -> Type
 ptr = TPtr Nothing
 
 dptr :: Type -> Type
 dptr = TPtr (Just Device)
 
-hptr :: Type -> Type
-hptr = TPtr (Just Host)
+-- hptr :: Type -> Type
+-- hptr = TPtr (Just Host)
 
 int :: Type
 int = TInt
+
+half :: Type
+half = THalf
 
 float :: Type
 float = TFloat
@@ -299,9 +298,6 @@ double = TDouble
 
 complex :: Type -> Type
 complex = TComplex
-
-index :: Type
-index = TInt
 
 transpose :: Type
 transpose = TEnum "Operation"
@@ -410,19 +406,26 @@ funsL3 :: [FunGroup]
 funsL3 =
   [ gpA $ \ a   -> fun "?gemm"  [ transpose, transpose, int, int, int, ptr a
                                 , dptr a, int, dptr a, int, ptr a, dptr a, int ]
-
+  , gp  $          ext "hgemm"  [ transpose, transpose, int, int, int, ptr half
+                                , dptr half, int, dptr half, int, ptr half, dptr half, int ]
+  , gpA $ \ a   -> ext "?gemmBatched"
+                                [ transpose, transpose, int, int, int, ptr a
+                                , dptr (dptr a), int, dptr (dptr a), int, ptr a, dptr (dptr a), int, int ]
   , gpA $ \ a   -> fun "?symm"  [ side, uplo, int, int, ptr a, dptr a, int
                                 , dptr a, int, ptr a, dptr a, int ]
   , gpA $ \ a   -> fun "?syrk"  [ uplo, transpose, int, int, ptr a, dptr a
                                 , int, ptr a, dptr a, int ]
   , gpA $ \ a   -> fun "?syr2k" [ uplo, transpose, int, int, ptr a, dptr a
                                 , int, dptr a, int, ptr a, dptr a, int ]
-
+  , gpA $ \ a   -> ext "?syrkx" [ uplo, transpose, int, int, ptr a, dptr a, int
+                                , dptr a, int, ptr a, dptr a, int ]
   , gpA $ \ a   -> fun "?trmm"  [ side, uplo, transpose, diag, int, int
                                 , ptr a, dptr a, int, dptr a, int, dptr a, int ]
   , gpA $ \ a   -> fun "?trsm"  [ side, uplo, transpose, diag, int, int
                                 , ptr a, dptr a, int, dptr a, int ]
-
+  , gpA $ \ a   -> ext "?trsmBatched"
+                                [ side, uplo, transpose, diag, int, int, ptr a
+                                , dptr (dptr a), int, dptr (dptr a), int, int ]
   , gpC $ \ a   -> fun "?hemm"  [ side, uplo, int, int, ptr a, dptr a, int
                                 , dptr a, int, ptr a, dptr a, int ]
   , gpQ $ \ a   -> fun "?herk"  [ uplo, transpose, int, int, ptr a
@@ -431,7 +434,8 @@ funsL3 =
   , gpQ $ \ a   -> fun "?her2k" [ uplo, transpose, int, int, ptr (complex a)
                                 , dptr (complex a), int, dptr (complex a)
                                 , int, ptr a, dptr (complex a), int ]
-
+  , gpQ $ \ a   -> ext "?herkx" [ uplo, transpose, int, int, ptr a
+                                , dptr a, int, dptr a, int, ptr a, dptr a, int ]
   ]
 
 data FunGroup
@@ -447,6 +451,10 @@ gp f = FunGroup (fName f) (fTypes f) [FunInstance [] f]
 -- | Function group over @s d c z@.
 gpA :: (Type -> Fun) -> FunGroup
 gpA = makeFunGroup1 decorate floatingTypes
+
+-- -- | Function group over @h@
+-- gpH :: (Type -> Fun) -> FunGroup
+-- gpH = makeFunGroup1 decorate [half]
 
 -- | Function group over @s d@.
 gpR :: (Type -> Fun) -> FunGroup
@@ -505,11 +513,11 @@ data FunInstance
 concatFunInstances :: [FunGroup] -> [Fun]
 concatFunInstances = (>>= (>>= return . fiFun) . gpInsts)
 
-funMangler :: String -> String
-funMangler []     = error "funMangler: empty input"
-funMangler (x:xs) = printf "cublas%c%s_v2" (toUpper x) xs
+funMangler :: String -> String -> String
+funMangler []     _   = error "funMangler: empty input"
+funMangler (x:xs) suf = printf "cublas%c%s%s" (toUpper x) xs suf
 
 mangleFun :: Safety -> Fun -> CFun
-mangleFun safety (Fun name params doc) =
-  CFun (safety==Safe) name (THandle : params) TStatus doc
+mangleFun safety (Fun name suffix params doc) =
+  CFun (safety==Safe) name suffix (THandle : params) TStatus doc
 
