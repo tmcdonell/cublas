@@ -5,6 +5,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
+{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Level2
 -- Copyright   : [2017] Trevor L. McDonell
@@ -113,6 +114,10 @@ import Foreign.CUDA.BLAS.Internal.Types
 {-# INLINE useDevP #-}
 useDevP :: DevicePtr a -> Ptr b
 useDevP = useDevicePtr . castDevPtr
+
+{-# INLINE useHostP #-}
+useHostP :: HostPtr a -> Ptr b
+useHostP = useHostPtr . castHostPtr
 
 
 {-# INLINEABLE sgbmv #-}

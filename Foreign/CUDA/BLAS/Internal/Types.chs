@@ -89,3 +89,24 @@ newtype Handle = Handle { useHandle :: {# type cublasHandle_t #}}
   { underscoreToCase }
   with prefix="CUBLAS_ATOMICS" deriving (Eq, Show) #}
 
+
+-- | Used to specify the type of data underlying a @void*@ pointer. For example,
+-- it is used in the routine <http://docs.nvidia.com/cuda/cublas/index.html#cublas-gemmEx ?gemmEx>.
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cuda_datatype_t>
+--
+#if CUDA_VERSION < 8000
+{# enum cublasDataType_t as Type
+  { underscoreToCase
+  , CUBLAS_DATA_FLOAT   as R32f
+  , CUBLAS_DATA_DOUBLE  as R64f
+  , CUBLAS_DATA_HALF    as R16f
+  , CUBLAS_DATA_INT8    as R8i
+  }
+  with prefix="CUBLAS_DATA" deriving (Eq, Show) #}
+#else
+{# enum cublasDataType_t as Type
+  { underscoreToCase }
+  with prefix="CUDA" deriving (Eq, Show) #}
+#endif
+

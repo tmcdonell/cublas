@@ -5,6 +5,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
+{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Level1
 -- Copyright   : [2017] Trevor L. McDonell
@@ -93,30 +94,34 @@ import Foreign.CUDA.BLAS.Internal.Types
 useDevP :: DevicePtr a -> Ptr b
 useDevP = useDevicePtr . castDevPtr
 
+{-# INLINE useHostP #-}
+useHostP :: HostPtr a -> Ptr b
+useHostP = useHostPtr . castHostPtr
+
 
 {-# INLINEABLE isamax #-}
-{# fun unsafe cublasIsamax_v2 as isamax { useHandle `Handle', `Int', useDevP `DevicePtr Float', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIsamax_v2 as isamax { useHandle `Handle', `Int', useDevP `DevicePtr Float', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE idamax #-}
-{# fun unsafe cublasIdamax_v2 as idamax { useHandle `Handle', `Int', useDevP `DevicePtr Double', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIdamax_v2 as idamax { useHandle `Handle', `Int', useDevP `DevicePtr Double', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE icamax #-}
-{# fun unsafe cublasIcamax_v2 as icamax { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Float)', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIcamax_v2 as icamax { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Float)', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE izamax #-}
-{# fun unsafe cublasIzamax_v2 as izamax { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIzamax_v2 as izamax { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE isamin #-}
-{# fun unsafe cublasIsamin_v2 as isamin { useHandle `Handle', `Int', useDevP `DevicePtr Float', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIsamin_v2 as isamin { useHandle `Handle', `Int', useDevP `DevicePtr Float', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE idamin #-}
-{# fun unsafe cublasIdamin_v2 as idamin { useHandle `Handle', `Int', useDevP `DevicePtr Double', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIdamin_v2 as idamin { useHandle `Handle', `Int', useDevP `DevicePtr Double', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE icamin #-}
-{# fun unsafe cublasIcamin_v2 as icamin { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Float)', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIcamin_v2 as icamin { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Float)', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE izamin #-}
-{# fun unsafe cublasIzamin_v2 as izamin { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
+{# fun unsafe cublasIzamin_v2 as izamin { useHandle `Handle', `Int', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr Int32' } -> `()' checkStatus* #}
 
 {-# INLINEABLE sasum #-}
 {# fun unsafe cublasSasum_v2 as sasum { useHandle `Handle', `Int', useDevP `DevicePtr Float', `Int', castPtr `Ptr Float' } -> `()' checkStatus* #}

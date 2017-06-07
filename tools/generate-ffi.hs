@@ -28,7 +28,7 @@ main = do
                 , "Fill(..)"
                 , "Diagonal(..)"
                 ]
-      l3exps  = l2exps ++ [ "Side(..)" ]
+      l3exps  = l2exps ++ [ "Side(..)", "Type(..)" ]
   --
   mkC2HS "Level1" (docs 1) l1exps funsL1
   mkC2HS "Level2" (docs 2) l2exps funsL2
@@ -59,6 +59,10 @@ mkC2HS mdl docs exps funs =
               : "useDevP :: DevicePtr a -> Ptr b"
               : "useDevP = useDevicePtr . castDevPtr"
               : ""
+              : "{-# INLINE useHostP #-}"
+              : "useHostP :: HostPtr a -> Ptr b"
+              : "useHostP = useHostPtr . castHostPtr"
+              : ""
               : map mkFun fis
   in
   writeFile path $ mkModule exts name docs exps' imps body
@@ -80,6 +84,7 @@ mkModule exts name docs exps imps body =
     : ""
     : map (printf "{-# LANGUAGE %s #-}") exts
    ++ "{-# OPTIONS_GHC -fno-warn-unused-imports #-}"
+    : "{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}"
     : "-- |"
     :("-- Module      : " ++ intercalate "." name)
     : "-- Copyright   : [2017] Trevor L. McDonell"
@@ -128,7 +133,7 @@ data Type
   | TStatus
   | TVoid
   | TPtr (Maybe AddrSpace) Type
-  | TInt
+  | TInt (Maybe Int)
   | THalf -- 16-bit floating-point type
   | TFloat
   | TDouble
@@ -248,7 +253,7 @@ decorate _                  = error "decorate: bad args"
 convType :: Type -> HType
 convType t = case t of
   TVoid             -> simple "()"
-  TInt              -> simple "Int"
+  TInt ms           -> simple (maybe "Int" (printf "Int%d") ms)
   TEnum t'          -> enum t'
   THalf             -> floating "Half"
   TFloat            -> floating "Float"
@@ -281,11 +286,17 @@ ptr = TPtr Nothing
 dptr :: Type -> Type
 dptr = TPtr (Just Device)
 
--- hptr :: Type -> Type
--- hptr = TPtr (Just Host)
+hptr :: Type -> Type
+hptr = TPtr (Just Host)
+
+void :: Type
+void = TVoid
 
 int :: Type
-int = TInt
+int = TInt Nothing
+
+int32 :: Type
+int32 = TInt (Just 32)
 
 half :: Type
 half = THalf
@@ -311,6 +322,9 @@ diag = TEnum "Diagonal"
 side :: Type
 side = TEnum "Side"
 
+dtype :: Type
+dtype = TEnum "Type"
+
 funInsts :: Safety -> [FunGroup] -> [CFun]
 funInsts safety funs = mangleFun safety <$> concatFunInstances funs
 
@@ -323,8 +337,8 @@ funInsts safety funs = mangleFun safety <$> concatFunInstances funs
 --
 funsL1 :: [FunGroup]
 funsL1 =
-  [ gpA $ \ a   -> fun "i?amax" [ int, dptr a, int, ptr int ]
-  , gpA $ \ a   -> fun "i?amin" [ int, dptr a, int, ptr int ]
+  [ gpA $ \ a   -> fun "i?amax" [ int, dptr a, int, ptr int32 ]
+  , gpA $ \ a   -> fun "i?amin" [ int, dptr a, int, ptr int32 ]
   , gpB $ \ a b -> fun "?asum"  [ int, dptr b, int, ptr a ]
   , gpA $ \ a   -> fun "?axpy"  [ int, ptr a, dptr a, int, dptr a, int ]
   , gpA $ \ a   -> fun "?copy"  [ int, dptr a, int, dptr a, int ]
@@ -346,96 +360,68 @@ funsL1 =
 --
 funsL2 :: [FunGroup]
 funsL2 =
-  [ gpA $ \ a   -> fun "?gbmv"  [ transpose, int, int, int, int, ptr a
-                                , dptr a, int, dptr a, int, ptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?gemv"  [ transpose, int, int, ptr a, dptr a
-                                , int, dptr a, int, ptr a, dptr a, int ]
-  , gpR $ \ a   -> fun "?ger"   [ int, int, ptr a, dptr a, int, dptr a
-                                , int, dptr a, int ]
-  , gpC $ \ a   -> fun "?gerc"  [ int, int, ptr a, dptr a, int
-                                , dptr a, int, dptr a, int ]
-  , gpC $ \ a   -> fun "?geru"  [ int, int, ptr a, dptr a, int
-                                , dptr a, int, dptr a, int ]
-  , gpR $ \ a   -> fun "?sbmv"  [ uplo, int, int, ptr a, dptr a, int, dptr a
-                                , int, ptr a, dptr a, int ]
-  , gpR $ \ a   -> fun "?spmv"  [ uplo, int, ptr a, dptr a, dptr a, int, ptr a
-                                , dptr a, int ]
-  , gpR $ \ a   -> fun "?spr"   [ uplo, int, ptr a, dptr a
-                                , int, dptr a ]
-  , gpR $ \ a   -> fun "?spr2"  [ uplo, int, ptr a, dptr a, int, dptr a
-                                , int, dptr a ]
-  , gpA $ \ a   -> fun "?symv"  [ uplo, int, ptr a, dptr a, int, dptr a, int
-                                , ptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?syr"   [ uplo, int, ptr a, dptr a, int, dptr a
-                                , int ]
-  , gpA $ \ a   -> fun "?syr2"  [ uplo, int, ptr a, dptr a, int, dptr a
-                                , int, dptr a, int ]
-  , gpA $ \ a   -> fun "?tbmv"  [ uplo, transpose, diag, int, int
-                                , dptr a, int, dptr a, int ]
-  , gpA $ \ a   -> fun "?tbsv"  [ uplo, transpose, diag, int, int
-                                , dptr a, int, dptr a, int ]
-  , gpA $ \ a   -> fun "?tpmv"  [ uplo, transpose, diag, int
-                                , dptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?tpsv"  [ uplo, transpose, diag, int
-                                , dptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?trmv"  [ uplo, transpose, diag, int
-                                , dptr a, int, dptr a, int ]
-  , gpA $ \ a   -> fun "?trsv"  [ uplo, transpose, diag, int
-                                , dptr a, int, dptr a, int ]
-  , gpC $ \ a   -> fun "?hemv"  [ uplo, int, ptr a, dptr a, int, dptr a
-                                , int, ptr a, dptr a, int ]
-  , gpC $ \ a   -> fun "?hbmv"  [ uplo, int, int, ptr a, dptr a
-                                , int, dptr a, int, ptr a, dptr a, int ]
-  , gpC $ \ a   -> fun "?hpmv"  [ uplo, int, ptr a, dptr a, dptr a
-                                , int, ptr a, dptr a, int ]
-  , gpQ $ \ a   -> fun "?her"   [ uplo, int, ptr a, dptr (complex a), int
-                                , dptr (complex a), int ]
-  , gpC $ \ a   -> fun "?her2"  [ uplo, int, ptr a, dptr a, int
-                                , dptr a, int, dptr a, int ]
-  , gpQ $ \ a   -> fun "?hpr"   [ uplo, int, ptr a, dptr (complex a), int
-                                , dptr (complex a) ]
-  , gpC $ \ a   -> fun "?hpr2"  [ uplo, int, ptr a, dptr a, int
-                                , dptr a, int, dptr a ]
+  [ gpA $ \ a   -> fun "?gbmv"  [ transpose, int, int, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?gemv"  [ transpose, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpR $ \ a   -> fun "?ger"   [ int, int, ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpC $ \ a   -> fun "?gerc"  [ int, int, ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpC $ \ a   -> fun "?geru"  [ int, int, ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpR $ \ a   -> fun "?sbmv"  [ uplo, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpR $ \ a   -> fun "?spmv"  [ uplo, int, ptr a, dptr a, dptr a, int, ptr a, dptr a, int ]
+  , gpR $ \ a   -> fun "?spr"   [ uplo, int, ptr a, dptr a, int, dptr a ]
+  , gpR $ \ a   -> fun "?spr2"  [ uplo, int, ptr a, dptr a, int, dptr a, int, dptr a ]
+  , gpA $ \ a   -> fun "?symv"  [ uplo, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?syr"   [ uplo, int, ptr a, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?syr2"  [ uplo, int, ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?tbmv"  [ uplo, transpose, diag, int, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?tbsv"  [ uplo, transpose, diag, int, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?tpmv"  [ uplo, transpose, diag, int, dptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?tpsv"  [ uplo, transpose, diag, int, dptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?trmv"  [ uplo, transpose, diag, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?trsv"  [ uplo, transpose, diag, int, dptr a, int, dptr a, int ]
+  , gpC $ \ a   -> fun "?hemv"  [ uplo, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpC $ \ a   -> fun "?hbmv"  [ uplo, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpC $ \ a   -> fun "?hpmv"  [ uplo, int, ptr a, dptr a, dptr a, int, ptr a, dptr a, int ]
+  , gpQ $ \ a   -> fun "?her"   [ uplo, int, ptr a, dptr (complex a), int, dptr (complex a), int ]
+  , gpC $ \ a   -> fun "?her2"  [ uplo, int, ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpQ $ \ a   -> fun "?hpr"   [ uplo, int, ptr a, dptr (complex a), int, dptr (complex a) ]
+  , gpC $ \ a   -> fun "?hpr2"  [ uplo, int, ptr a, dptr a, int, dptr a, int, dptr a ]
   ]
 
--- Level 3 (matrix-vector) operations.
+-- Level 3 (matrix-vector) operations (and extensions)
 --
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-3-function-reference>
 --
+-- <http://docs.nvidia.com/cuda/cublas/index.html#blas-like-extension>
+--
 funsL3 :: [FunGroup]
 funsL3 =
-  [ gpA $ \ a   -> fun "?gemm"  [ transpose, transpose, int, int, int, ptr a
-                                , dptr a, int, dptr a, int, ptr a, dptr a, int ]
-  , gp  $          ext "hgemm"  [ transpose, transpose, int, int, int, ptr half
-                                , dptr half, int, dptr half, int, ptr half, dptr half, int ]
-  , gpA $ \ a   -> ext "?gemmBatched"
-                                [ transpose, transpose, int, int, int, ptr a
-                                , dptr (dptr a), int, dptr (dptr a), int, ptr a, dptr (dptr a), int, int ]
-  , gpA $ \ a   -> fun "?symm"  [ side, uplo, int, int, ptr a, dptr a, int
-                                , dptr a, int, ptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?syrk"  [ uplo, transpose, int, int, ptr a, dptr a
-                                , int, ptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?syr2k" [ uplo, transpose, int, int, ptr a, dptr a
-                                , int, dptr a, int, ptr a, dptr a, int ]
-  , gpA $ \ a   -> ext "?syrkx" [ uplo, transpose, int, int, ptr a, dptr a, int
-                                , dptr a, int, ptr a, dptr a, int ]
-  , gpA $ \ a   -> fun "?trmm"  [ side, uplo, transpose, diag, int, int
-                                , ptr a, dptr a, int, dptr a, int, dptr a, int ]
-  , gpA $ \ a   -> fun "?trsm"  [ side, uplo, transpose, diag, int, int
-                                , ptr a, dptr a, int, dptr a, int ]
-  , gpA $ \ a   -> ext "?trsmBatched"
-                                [ side, uplo, transpose, diag, int, int, ptr a
-                                , dptr (dptr a), int, dptr (dptr a), int, int ]
-  , gpC $ \ a   -> fun "?hemm"  [ side, uplo, int, int, ptr a, dptr a, int
-                                , dptr a, int, ptr a, dptr a, int ]
-  , gpQ $ \ a   -> fun "?herk"  [ uplo, transpose, int, int, ptr a
-                                , dptr (complex a), int, ptr a
-                                , dptr (complex a), int ]
-  , gpQ $ \ a   -> fun "?her2k" [ uplo, transpose, int, int, ptr (complex a)
-                                , dptr (complex a), int, dptr (complex a)
-                                , int, ptr a, dptr (complex a), int ]
-  , gpQ $ \ a   -> ext "?herkx" [ uplo, transpose, int, int, ptr a
-                                , dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  [ gpA $ \ a   -> fun "?gemm"          [ transpose, transpose, int, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gp  $          ext "hgemm"          [ transpose, transpose, int, int, int, ptr half, dptr half, int, dptr half, int, ptr half, dptr half, int ]
+  , gpA $ \ a   -> ext "?gemmBatched"   [ transpose, transpose, int, int, int, ptr a, dptr (dptr a), int, dptr (dptr a), int, ptr a, dptr (dptr a), int, int ]
+  , gpA $ \ a   -> fun "?symm"          [ side, uplo, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?syrk"          [ uplo, transpose, int, int, ptr a, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?syr2k"         [ uplo, transpose, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> ext "?syrkx"         [ uplo, transpose, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?trmm"          [ side, uplo, transpose, diag, int, int, ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?trsm"          [ side, uplo, transpose, diag, int, int, ptr a, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> ext "?trsmBatched"   [ side, uplo, transpose, diag, int, int, ptr a, dptr (dptr a), int, dptr (dptr a), int, int ]
+  , gpC $ \ a   -> fun "?hemm"          [ side, uplo, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpQ $ \ a   -> fun "?herk"          [ uplo, transpose, int, int, ptr a, dptr (complex a), int, ptr a, dptr (complex a), int ]
+  , gpQ $ \ a   -> fun "?her2k"         [ uplo, transpose, int, int, ptr (complex a), dptr (complex a), int, dptr (complex a), int, ptr a, dptr (complex a), int ]
+  , gpQ $ \ a   -> ext "?herkx"         [ uplo, transpose, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
+
+  -- BLAS-like extensions
+  , gpA $ \ a   -> ext "?geam"          [ transpose, transpose, int, int, ptr a, dptr a, int, ptr a, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> ext "?dgmm"          [ side, int, int, dptr a, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> ext "?getrfBatched"  [ int, dptr (dptr a), int, ptr int32, ptr int32, int ]
+  , gpA $ \ a   -> ext "?getrsBatched"  [ transpose, int, int, dptr (dptr a), int, dptr int32, dptr (dptr a), int, hptr int32, int ]
+  , gpA $ \ a   -> ext "?getriBatched"  [ int, dptr (dptr a), int, dptr int32, dptr (dptr a), int, dptr int32, int ]
+  , gpA $ \ a   -> ext "?matinvBatched" [ int, dptr (dptr a), int, dptr (dptr a), int, dptr int32, int ]
+  , gpA $ \ a   -> ext "?geqrfBatched"  [ int, int, dptr (dptr a), int, dptr (dptr a), hptr int32, int ]
+  , gpA $ \ a   -> ext "?gelsBatched"   [ transpose, int, int, int, dptr (dptr a), int, dptr (dptr a), int, hptr int32, dptr int32, int ]
+  , gpA $ \ a   -> ext "?tpttr"         [ uplo, int, dptr a, dptr a, int ]
+  , gpA $ \ a   -> ext "?trttp"         [ uplo, int, dptr a, int, dptr a ]
+  , gp  $          ext "sgemmEx"        [ transpose, transpose, int, int, int, ptr float, dptr void, dtype, int, dptr void, dtype, int, ptr float, dptr void, dtype, int ]
   ]
 
 data FunGroup
@@ -451,10 +437,6 @@ gp f = FunGroup (fName f) (fTypes f) [FunInstance [] f]
 -- | Function group over @s d c z@.
 gpA :: (Type -> Fun) -> FunGroup
 gpA = makeFunGroup1 decorate floatingTypes
-
--- -- | Function group over @h@
--- gpH :: (Type -> Fun) -> FunGroup
--- gpH = makeFunGroup1 decorate [half]
 
 -- | Function group over @s d@.
 gpR :: (Type -> Fun) -> FunGroup

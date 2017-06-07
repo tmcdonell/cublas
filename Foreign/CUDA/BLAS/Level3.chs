@@ -5,6 +5,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
+{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Level3
 -- Copyright   : [2017] Trevor L. McDonell
@@ -25,6 +26,7 @@ module Foreign.CUDA.BLAS.Level3 (
   Fill(..),
   Diagonal(..),
   Side(..),
+  Type(..),
   sgemm,
   dgemm,
   cgemm,
@@ -70,6 +72,47 @@ module Foreign.CUDA.BLAS.Level3 (
   zher2k,
   cherkx,
   zherkx,
+  sgeam,
+  dgeam,
+  cgeam,
+  zgeam,
+  sdgmm,
+  ddgmm,
+  cdgmm,
+  zdgmm,
+  sgetrfBatched,
+  dgetrfBatched,
+  cgetrfBatched,
+  zgetrfBatched,
+  sgetrsBatched,
+  dgetrsBatched,
+  cgetrsBatched,
+  zgetrsBatched,
+  sgetriBatched,
+  dgetriBatched,
+  cgetriBatched,
+  zgetriBatched,
+  smatinvBatched,
+  dmatinvBatched,
+  cmatinvBatched,
+  zmatinvBatched,
+  sgeqrfBatched,
+  dgeqrfBatched,
+  cgeqrfBatched,
+  zgeqrfBatched,
+  sgelsBatched,
+  dgelsBatched,
+  cgelsBatched,
+  zgelsBatched,
+  stpttr,
+  dtpttr,
+  ctpttr,
+  ztpttr,
+  strttp,
+  dtrttp,
+  ctrttp,
+  ztrttp,
+  sgemmEx,
 
 ) where
 
@@ -87,6 +130,10 @@ import Foreign.CUDA.BLAS.Internal.Types
 {-# INLINE useDevP #-}
 useDevP :: DevicePtr a -> Ptr b
 useDevP = useDevicePtr . castDevPtr
+
+{-# INLINE useHostP #-}
+useHostP :: HostPtr a -> Ptr b
+useHostP = useHostPtr . castHostPtr
 
 
 {-# INLINEABLE sgemm #-}
@@ -223,3 +270,126 @@ useDevP = useDevicePtr . castDevPtr
 
 {-# INLINEABLE zherkx #-}
 {# fun unsafe cublasZherkx as zherkx { useHandle `Handle', cFromEnum `Fill', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Double', useDevP `DevicePtr Double', `Int', useDevP `DevicePtr Double', `Int', castPtr `Ptr Double', useDevP `DevicePtr Double', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgeam #-}
+{# fun unsafe cublasSgeam as sgeam { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr Float', `Int', castPtr `Ptr Float', useDevP `DevicePtr Float', `Int', useDevP `DevicePtr Float', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgeam #-}
+{# fun unsafe cublasDgeam as dgeam { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', castPtr `Ptr Double', useDevP `DevicePtr Double', `Int', castPtr `Ptr Double', useDevP `DevicePtr Double', `Int', useDevP `DevicePtr Double', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgeam #-}
+{# fun unsafe cublasCgeam as cgeam { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', castPtr `Ptr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int', useDevP `DevicePtr (Complex Float)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgeam #-}
+{# fun unsafe cublasZgeam as zgeam { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sdgmm #-}
+{# fun unsafe cublasSdgmm as sdgmm { useHandle `Handle', cFromEnum `Side', `Int', `Int', useDevP `DevicePtr Float', `Int', useDevP `DevicePtr Float', `Int', useDevP `DevicePtr Float', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE ddgmm #-}
+{# fun unsafe cublasDdgmm as ddgmm { useHandle `Handle', cFromEnum `Side', `Int', `Int', useDevP `DevicePtr Double', `Int', useDevP `DevicePtr Double', `Int', useDevP `DevicePtr Double', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cdgmm #-}
+{# fun unsafe cublasCdgmm as cdgmm { useHandle `Handle', cFromEnum `Side', `Int', `Int', useDevP `DevicePtr (Complex Float)', `Int', useDevP `DevicePtr (Complex Float)', `Int', useDevP `DevicePtr (Complex Float)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zdgmm #-}
+{# fun unsafe cublasZdgmm as zdgmm { useHandle `Handle', cFromEnum `Side', `Int', `Int', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgetrfBatched #-}
+{# fun unsafe cublasSgetrfBatched as sgetrfBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', castPtr `Ptr Int32', castPtr `Ptr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgetrfBatched #-}
+{# fun unsafe cublasDgetrfBatched as dgetrfBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', castPtr `Ptr Int32', castPtr `Ptr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgetrfBatched #-}
+{# fun unsafe cublasCgetrfBatched as cgetrfBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', castPtr `Ptr Int32', castPtr `Ptr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgetrfBatched #-}
+{# fun unsafe cublasZgetrfBatched as zgetrfBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', castPtr `Ptr Int32', castPtr `Ptr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgetrsBatched #-}
+{# fun unsafe cublasSgetrsBatched as sgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Float)', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgetrsBatched #-}
+{# fun unsafe cublasDgetrsBatched as dgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Double)', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgetrsBatched #-}
+{# fun unsafe cublasCgetrsBatched as cgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgetrsBatched #-}
+{# fun unsafe cublasZgetrsBatched as zgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgetriBatched #-}
+{# fun unsafe cublasSgetriBatched as sgetriBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgetriBatched #-}
+{# fun unsafe cublasDgetriBatched as dgetriBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgetriBatched #-}
+{# fun unsafe cublasCgetriBatched as cgetriBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgetriBatched #-}
+{# fun unsafe cublasZgetriBatched as zgetriBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE smatinvBatched #-}
+{# fun unsafe cublasSmatinvBatched as smatinvBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dmatinvBatched #-}
+{# fun unsafe cublasDmatinvBatched as dmatinvBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cmatinvBatched #-}
+{# fun unsafe cublasCmatinvBatched as cmatinvBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zmatinvBatched #-}
+{# fun unsafe cublasZmatinvBatched as zmatinvBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgeqrfBatched #-}
+{# fun unsafe cublasSgeqrfBatched as sgeqrfBatched { useHandle `Handle', `Int', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr (DevicePtr Float)', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgeqrfBatched #-}
+{# fun unsafe cublasDgeqrfBatched as dgeqrfBatched { useHandle `Handle', `Int', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr (DevicePtr Double)', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgeqrfBatched #-}
+{# fun unsafe cublasCgeqrfBatched as cgeqrfBatched { useHandle `Handle', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgeqrfBatched #-}
+{# fun unsafe cublasZgeqrfBatched as zgeqrfBatched { useHandle `Handle', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgelsBatched #-}
+{# fun unsafe cublasSgelsBatched as sgelsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useHostP `HostPtr Int32', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgelsBatched #-}
+{# fun unsafe cublasDgelsBatched as dgelsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useHostP `HostPtr Int32', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgelsBatched #-}
+{# fun unsafe cublasCgelsBatched as cgelsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useHostP `HostPtr Int32', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgelsBatched #-}
+{# fun unsafe cublasZgelsBatched as zgelsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useHostP `HostPtr Int32', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE stpttr #-}
+{# fun unsafe cublasStpttr as stpttr { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr Float', useDevP `DevicePtr Float', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dtpttr #-}
+{# fun unsafe cublasDtpttr as dtpttr { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr Double', useDevP `DevicePtr Double', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE ctpttr #-}
+{# fun unsafe cublasCtpttr as ctpttr { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr (Complex Float)', useDevP `DevicePtr (Complex Float)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE ztpttr #-}
+{# fun unsafe cublasZtpttr as ztpttr { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE strttp #-}
+{# fun unsafe cublasStrttp as strttp { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr Float', `Int', useDevP `DevicePtr Float' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dtrttp #-}
+{# fun unsafe cublasDtrttp as dtrttp { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr Double', `Int', useDevP `DevicePtr Double' } -> `()' checkStatus* #}
+
+{-# INLINEABLE ctrttp #-}
+{# fun unsafe cublasCtrttp as ctrttp { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr (Complex Float)', `Int', useDevP `DevicePtr (Complex Float)' } -> `()' checkStatus* #}
+
+{-# INLINEABLE ztrttp #-}
+{# fun unsafe cublasZtrttp as ztrttp { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)' } -> `()' checkStatus* #}
+
+{-# INLINEABLE sgemmEx #-}
+{# fun unsafe cublasSgemmEx as sgemmEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
