@@ -35,7 +35,6 @@ module Foreign.CUDA.BLAS.Level3 (
   dgemm,
   cgemm,
   zgemm,
-  hgemm,
   sgemmBatched,
   dgemmBatched,
   cgemmBatched,
@@ -116,7 +115,10 @@ module Foreign.CUDA.BLAS.Level3 (
   dtrttp,
   ctrttp,
   ztrttp,
+#if CUDA_VERSION >= 7500
+  hgemm,
   sgemmEx,
+#endif
 #if CUDA_VERSION >= 8000
   cgemm3m,
   zgemm3m,
@@ -170,9 +172,6 @@ useHostP = useHostPtr . castHostPtr
 
 {-# INLINEABLE zgemm #-}
 {# fun unsafe cublasZgemm_v2 as zgemm { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)', `Int', castPtr `Ptr (Complex Double)', useDevP `DevicePtr (Complex Double)', `Int' } -> `()' checkStatus* #}
-
-{-# INLINEABLE hgemm #-}
-{# fun unsafe cublasHgemm as hgemm { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Half', useDevP `DevicePtr Half', `Int', useDevP `DevicePtr Half', `Int', castPtr `Ptr Half', useDevP `DevicePtr Half', `Int' } -> `()' checkStatus* #}
 
 {-# INLINEABLE sgemmBatched #-}
 {# fun unsafe cublasSgemmBatched as sgemmBatched { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', castPtr `Ptr Float', useDevP `DevicePtr (DevicePtr Float)', `Int', `Int' } -> `()' checkStatus* #}
@@ -413,9 +412,14 @@ useHostP = useHostPtr . castHostPtr
 
 {-# INLINEABLE ztrttp #-}
 {# fun unsafe cublasZtrttp as ztrttp { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)' } -> `()' checkStatus* #}
+#if CUDA_VERSION >= 7500
+
+{-# INLINEABLE hgemm #-}
+{# fun unsafe cublasHgemm as hgemm { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Half', useDevP `DevicePtr Half', `Int', useDevP `DevicePtr Half', `Int', castPtr `Ptr Half', useDevP `DevicePtr Half', `Int' } -> `()' checkStatus* #}
 
 {-# INLINEABLE sgemmEx #-}
 {# fun unsafe cublasSgemmEx as sgemmEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr Float', useDevP `DevicePtr ()', cFromEnum `Type', `Int' } -> `()' checkStatus* #}
+#endif
 #if CUDA_VERSION >= 8000
 
 {-# INLINEABLE cgemm3m #-}

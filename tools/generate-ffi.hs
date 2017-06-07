@@ -37,7 +37,8 @@ main = do
   mkC2HS "Level1" (docs 1) l1exps [(Nothing,   funsL1)]
   mkC2HS "Level2" (docs 2) l2exps [(Nothing,   funsL2)]
   mkC2HS "Level3" (docs 3) l3exps [(Nothing,   funsL3)
-                                  ,(Just 8000, funsL3_c8)
+                                  ,(Just 7500, funsL3_cuda75)
+                                  ,(Just 8000, funsL3_cuda80)
                                   ]
 
 
@@ -413,7 +414,6 @@ funsL2 =
 funsL3 :: [FunGroup]
 funsL3 =
   [ gpA $ \ a   -> fun "?gemm"          [ transpose, transpose, int, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
-  , gp  $          ext "hgemm"          [ transpose, transpose, int, int, int, ptr half, dptr half, int, dptr half, int, ptr half, dptr half, int ]
   , gpA $ \ a   -> ext "?gemmBatched"   [ transpose, transpose, int, int, int, ptr a, dptr (dptr a), int, dptr (dptr a), int, ptr a, dptr (dptr a), int, int ]
   , gpA $ \ a   -> fun "?symm"          [ side, uplo, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
   , gpA $ \ a   -> fun "?syrk"          [ uplo, transpose, int, int, ptr a, dptr a, int, ptr a, dptr a, int ]
@@ -438,13 +438,18 @@ funsL3 =
   , gpA $ \ a   -> ext "?gelsBatched"   [ transpose, int, int, int, dptr (dptr a), int, dptr (dptr a), int, hptr int32, dptr int32, int ]
   , gpA $ \ a   -> ext "?tpttr"         [ uplo, int, dptr a, dptr a, int ]
   , gpA $ \ a   -> ext "?trttp"         [ uplo, int, dptr a, int, dptr a ]
-  , gp  $          ext "sgemmEx"        [ transpose, transpose, int, int, int, ptr float, dptr void, dtype, int, dptr void, dtype, int, ptr float, dptr void, dtype, int ]
+-- Level 3 operations introduced in CUDA-7.5
+--
+funsL3_cuda75 :: [FunGroup]
+funsL3_cuda75 =
+  [ gp  $          ext "hgemm"      [ transpose, transpose, int, int, int, ptr half, dptr half, int, dptr half, int, ptr half, dptr half, int ]
+  , gp  $          ext "sgemmEx"    [ transpose, transpose, int, int, int, ptr float, dptr void, dtype, int, dptr void, dtype, int, ptr float, dptr void, dtype, int ]
   ]
 
 -- Level 3 operations introduced in CUDA-8
 --
-funsL3_c8 :: [FunGroup]
-funsL3_c8 =
+funsL3_cuda80 :: [FunGroup]
+funsL3_cuda80 =
   [ gpC $ \ a   -> ext "?gemm3m"    [ transpose, transpose, int, int, int, ptr a, dptr a, int, dptr a, int, ptr a, dptr a, int ]
   , gpH $ \ a   -> ext "?gemmStridedBatched"
                                     [ transpose, transpose, int, int, int, ptr a, dptr a, int, int64, dptr a, int, int64, ptr a, dptr a, int, int64, int ]
