@@ -97,7 +97,9 @@ newtype Handle = Handle { useHandle :: {# type cublasHandle_t #}}
 --
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cuda_datatype_t>
 --
-#if CUDA_VERSION < 8000
+#if CUDA_VERSION < 7500
+data Type
+#elif CUDA_VERSION < 8000
 {# enum cublasDataType_t as Type
   { underscoreToCase
   , CUBLAS_DATA_FLOAT   as R32f
