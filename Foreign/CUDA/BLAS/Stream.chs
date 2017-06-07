@@ -16,9 +16,9 @@ module Foreign.CUDA.BLAS.Stream (
 
 ) where
 
-import Foreign.CUDA.Types
-import Foreign.CUDA.BLAS.Types
-import Foreign.CUDA.BLAS.Error
+import Foreign.CUDA.Driver.Stream
+import Foreign.CUDA.BLAS.Internal.C2HS
+import Foreign.CUDA.BLAS.Internal.Types
 
 #include "cbits/stubs.h"
 {# context lib="cublas" #}

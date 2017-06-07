@@ -37,8 +37,8 @@ mkC2HS mdl docs exps funs =
                 , "Foreign"
                 , "Foreign.Storable.Complex ()"
                 , "Foreign.CUDA.Ptr"
-                , "Foreign.CUDA.BLAS.Types"
-                , "Foreign.CUDA.BLAS.Error"
+                , "Foreign.CUDA.BLAS.Internal.C2HS"
+                , "Foreign.CUDA.BLAS.Internal.Types"
                 ]
       fis     = funInsts Unsafe funs
       exps'   = exps ++ map cfName fis
@@ -48,6 +48,7 @@ mkC2HS mdl docs exps funs =
               : "{-# INLINE useDevP #-}"
               : "useDevP :: DevicePtr a -> Ptr b"
               : "useDevP = useDevicePtr . castDevPtr"
+              : ""
               : map mkFun fis
   in
   writeFile path $ mkModule exts name docs exps' imps body

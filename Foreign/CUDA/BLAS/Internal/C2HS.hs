@@ -11,9 +11,15 @@
 module Foreign.CUDA.BLAS.Internal.C2HS (
 
   -- * Conversion between C and Haskell types
-  cIntConv, cFloatConv, cToBool, cFromBool, cToEnum, cFromEnum
+  cIntConv, cFloatConv, cToBool, cFromBool, cToEnum, cFromEnum,
+
+  -- * Utilities
+  checkStatus
 
 ) where
+
+-- Friends
+import Foreign.CUDA.BLAS.Error
 
 -- System
 import Foreign
@@ -68,4 +74,10 @@ cToEnum  = toEnum . cIntConv
 cFromEnum :: (Enum e, Integral i) => e -> i
 cFromEnum  = cIntConv . fromEnum
 
+
+-- BLAS ------------------------------------------------------------------------
+--
+{-# INLINE checkStatus #-}
+checkStatus :: CInt -> IO ()
+checkStatus = nothingIfOk . cToEnum
 

@@ -18,9 +18,6 @@ module Foreign.CUDA.BLAS.Error
 import Data.Typeable
 import Control.Exception
 
-import Foreign.C.Types
-import Foreign.CUDA.BLAS.Internal.C2HS
-
 #include "cbits/stubs.h"
 {# context lib="cublas" #}
 
@@ -88,7 +85,4 @@ nothingIfOk status =
     case status of
         Success -> return  ()
         _       -> throwIO (ExitCode status)
-
-checkStatus :: CInt -> IO ()
-checkStatus = nothingIfOk . cToEnum
 

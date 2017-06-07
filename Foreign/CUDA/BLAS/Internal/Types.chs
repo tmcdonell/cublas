@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP                      #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 -- |
--- Module      : Foreign.CUDA.BLAS.Types
+-- Module      : Foreign.CUDA.BLAS.Internal.Types
 -- Copyright   : [2014..2017] Trevor L. McDonell
 -- License     : BSD3
 --
@@ -10,7 +10,7 @@
 -- Portability : non-portable (GHC extensions)
 --
 
-module Foreign.CUDA.BLAS.Types
+module Foreign.CUDA.BLAS.Internal.Types
   where
 
 import Prelude                                            hiding ( Either(..) )

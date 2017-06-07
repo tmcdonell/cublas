@@ -26,9 +26,9 @@ module Foreign.CUDA.BLAS.Context (
 ) where
 
 -- Friends
-import Foreign.CUDA.BLAS.Types
 import Foreign.CUDA.BLAS.Error
 import Foreign.CUDA.BLAS.Internal.C2HS
+import Foreign.CUDA.BLAS.Internal.Types
 
 -- System
 import Foreign

@@ -45,10 +45,10 @@ library
       Foreign.CUDA.BLAS.Level1
       Foreign.CUDA.BLAS.Level2
       Foreign.CUDA.BLAS.Stream
-      Foreign.CUDA.BLAS.Types
 
   other-modules:
       Foreign.CUDA.BLAS.Internal.C2HS
+      Foreign.CUDA.BLAS.Internal.Types
 
   build-depends:
         base                            == 4.*

@@ -81,8 +81,8 @@ import Data.Complex
 import Foreign
 import Foreign.Storable.Complex ()
 import Foreign.CUDA.Ptr
-import Foreign.CUDA.BLAS.Types
-import Foreign.CUDA.BLAS.Error
+import Foreign.CUDA.BLAS.Internal.C2HS
+import Foreign.CUDA.BLAS.Internal.Types
 
 #include "cbits/stubs.h"
 {# context lib="cublas" #}
@@ -90,6 +90,7 @@ import Foreign.CUDA.BLAS.Error
 {-# INLINE useDevP #-}
 useDevP :: DevicePtr a -> Ptr b
 useDevP = useDevicePtr . castDevPtr
+
 
 {-# INLINEABLE isamax #-}
 {# fun unsafe cublasIsamax_v2 as isamax { useHandle `Handle', `Int', useDevP `DevicePtr Float', `Int', castPtr `Ptr Int' } -> `()' checkStatus* #}
