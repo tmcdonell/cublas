@@ -4,18 +4,21 @@
 
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
-
 -- |
--- Module      : Foreign.CUDA.BLAS.Internal.FFI
--- Copyright   : [2014..2017] Trevor L. McDonell
+-- Module      : Foreign.CUDA.BLAS.Level1
+-- Copyright   : [2017] Trevor L. McDonell
 -- License     : BSD3
 --
 -- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
 -- Stability   : experimental
 -- Portability : non-portable (GHC extensions)
 --
+-- For more information see the cuBLAS Level-1 function reference:
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-1-function-reference>
+--
 
-module Foreign.CUDA.BLAS.Internal.FFI (
+module Foreign.CUDA.BLAS.Level1 (
 
   isamax,
   idamax,

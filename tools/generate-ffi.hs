@@ -5,9 +5,7 @@
 --
 -- Based on: https://github.com/Rufflewind/blas-hs/blob/f8e90b26bc9865618802dce9ccf21fc2b5c032be/tools/generate-ffi
 --
--- module Main (main) where
-
--- import Common
+module Main (main) where
 
 import Data.Char                                                    ( toUpper )
 import Data.Functor                                                 ( (<$>) )
@@ -16,62 +14,25 @@ import Data.Monoid                                                  ( (<>) )
 import Text.Printf                                                  ( printf )
 
 
--- dotest :: IO ()
--- dotest
---   = putStrLn
---   . mkModule ["ForeignFunctionInterface"] ["Foreign", "CUDA", "BLAS", "Internal", "FFI"] [] [] []
---   . unlines
---   $ map mkFun (funInsts Unsafe)
-
-{--
 main :: IO ()
-main = forM_ [minBound .. maxBound] $ \ safety ->
-  let docs = [ "Stability: Stable"
-             , "Foreign function interface to Blas.  These functions use " <>
-               (toLower <$> show safety) <> " foreign calls.  Refer to the " <>
-               "GHC documentation for more information regarding " <>
-               "appropriate use of safe and unsafe foreign calls." ]
-      name = [ "Blas", "Primitive", show safety ]
-      imps = [ "Prelude (Double, Float, Int, IO, fromIntegral, " <>
-               "($), (>>), (>>=), return)"
-             , "Data.Complex (Complex)"
-             , "Foreign (Ptr, castPtr)"
-             , "Foreign.C.Types"
-             , "Foreign.Storable.Complex ()"
-             , "Blas.Primitive.Types"
-             , "BlasCTypes"
-             , "FFI" ]
-      fis  = funInstsBySafety safety
-      exps = [ intercalate ", " (fmap cfName fis) ]
-      body = "#include <cblas.h>\n\n" <>
-             intercalate "\n\n" (fmap mkFun  fis)
-  -- trailing underscore to prevent Cabal from running c2hs on them
-  in writeModule "_.chs" exts name docs exps imps body prefix
-  where prefix = "../src/"
-        exts = [ "ForeignFunctionInterface" ]
+main = do
+  let
+      docs :: Int -> [String]
+      docs l  = [ printf "For more information see the cuBLAS Level-%d function reference:" l
+                , ""
+                , printf "<http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-%d-function-reference>" l
+                , ""
+                ]
+  --
+  mkC2HS "Level1" (docs 1) [] funsL1
 
-funInstsBySafety :: Safety -> [CFun]
-funInstsBySafety Safe   = funInsts
-funInstsBySafety Unsafe = funInstsUnsafe
---}
-
-main :: IO ()
-main =
+mkC2HS :: String -> [String] -> [String] -> [FunGroup] -> IO ()
+mkC2HS mdl docs exps funs =
   let exts    = [ "CPP"
                 , "ForeignFunctionInterface"
                 ]
-      name    = [ "Foreign", "CUDA", "BLAS", "Internal", "FFI" ]
+      name    = [ "Foreign", "CUDA", "BLAS", mdl ]
       path    = intercalate "/" name ++ ".chs"
-      docs    = [ "-- |"
-                , "-- Module      : Foreign.CUDA.BLAS.Internal.FFI"
-                , "-- Copyright   : [2014..2017] Trevor L. McDonell"
-                , "-- License     : BSD3"
-                , "--"
-                , "-- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>"
-                , "-- Stability   : experimental"
-                , "-- Portability : non-portable (GHC extensions)"
-                , "--"
-                ]
       imps    = [ "Data.Complex"
                 , "Foreign"
                 , "Foreign.Storable.Complex ()"
@@ -79,8 +40,8 @@ main =
                 , "Foreign.CUDA.BLAS.Types"
                 , "Foreign.CUDA.BLAS.Error"
                 ]
-      fis     = funInsts Unsafe
-      exps    = map cfName fis
+      fis     = funInsts Unsafe funs
+      exps'   = exps ++ map cfName fis
       body    = "#include \"cbits/stubs.h\""
               : "{# context lib=\"cublas\" #}"
               : ""
@@ -89,26 +50,34 @@ main =
               : "useDevP = useDevicePtr . castDevPtr"
               : map mkFun fis
   in
-  writeFile path (mkModule exts name docs exps imps body)
+  writeFile path $ mkModule exts name docs exps' imps body
 
 
 mkModule
     :: [String]       -- ^ extensions
     -> [String]       -- ^ module name segments
-    -> [String]       -- ^ module documentation paragraphs
+    -> [String]       -- ^ module documentation
     -> [String]       -- ^ exports
     -> [String]       -- ^ imports
     -> [String]       -- ^ module contents
     -> String
-mkModule exts name docs exps imps content =
+mkModule exts name docs exps imps body =
   unlines
     $ "--"
     : "-- This module is auto-generated. Do not edit directly."
     : "--"
     : ""
     : map (printf "{-# LANGUAGE %s #-}") exts
-   ++ ""
-    : docs
+   ++ "-- |"
+    :("-- Module      : " ++ intercalate "." name)
+    : "-- Copyright   : [2017] Trevor L. McDonell"
+    : "-- License     : BSD3"
+    : "--"
+    : "-- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>"
+    : "-- Stability   : experimental"
+    : "-- Portability : non-portable (GHC extensions)"
+    : "--"
+    : map (\x -> if null x then "--" else "-- " ++ x) docs
    ++ ""
     : printf "module %s (\n" (intercalate "." name)
     : map (printf "  %s,") exps
@@ -116,7 +85,7 @@ mkModule exts name docs exps imps content =
     : ""
     : map (printf "import %s") imps
    ++ ""
-    : content
+    : body
 
 
 -- | Generates a c2hs hook for the function.
@@ -336,14 +305,14 @@ diag = TEnum "Diagonal"
 side :: Type
 side = TEnum "Side"
 
-funInsts :: Safety -> [CFun]
-funInsts safety = mangleFun safety <$> concatFunInstances funs
+funInsts :: Safety -> [FunGroup] -> [CFun]
+funInsts safety funs = mangleFun safety <$> concatFunInstances funs
 
 -- | cuBLAS function signatures. The initial context handle argument is added
 -- implicitly.
 --
-funs :: [FunGroup]
-funs =
+funsL1 :: [FunGroup]
+funsL1 =
   -- Level 1
   -- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-1-function-reference>
   --

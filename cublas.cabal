@@ -49,7 +49,6 @@ library
 
   other-modules:
       Foreign.CUDA.BLAS.Internal.C2HS
-      Foreign.CUDA.BLAS.Internal.FFI
 
   build-depends:
         base                            == 4.*
