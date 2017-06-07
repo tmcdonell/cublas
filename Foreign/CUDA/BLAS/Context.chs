@@ -67,8 +67,12 @@ create = resultIfOk =<< cublasCreate_v2
   { useHandle `Handle' } -> `()' checkStatus* #}
 
 
--- | Set the pointer mode used by cuBLAS library functions. The _default_ mode
--- is for values to be passed by reference from the host.
+-- | Set the pointer mode used by cuBLAS library functions. For example, this
+-- controls whether the scaling parameters \(\alpha\) and \(\beta\) of the
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemm ?gemm>
+-- operation are treated as residing in host or device memory.
+--
+-- The default mode is for values to be passed by reference from the host.
 --
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublassetpointermode>
 --
