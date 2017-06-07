@@ -7,6 +7,36 @@
 -- Stability   : experimental
 -- Portability : non-portable (GHC extensions)
 --
+-- The cuBLAS library is an implementation of BLAS (Basic Linear Algebra
+-- Subprograms) for NVIDIA GPUs.
+--
+-- To use operations from the cuBLAS library, the user must allocate the
+-- required matrices and vectors in the GPU memory space, fill them with data,
+-- call the desired sequence of cuBLAS functions, then copy the results from the
+-- GPU memory space back to the host.
+--
+-- The <http://hackage.haskell.org/package/cuda cuda> package can be used for
+-- writing to and retrieving data from the GPU.
+--
+-- [/Data layout/]
+--
+-- Unlike modern BLAS libraries, cuBLAS /only/ provides Fortran-style
+-- implementations of the subprograms, using column-major storage and 1-based
+-- indexing.
+--
+-- The @<http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-geam ?geam>@
+-- operation can be used to perform matrix transposition.
+--
+-- [/Example/]
+--
+-- TBD
+--
+-- [/Additional information/]
+--
+-- For more information, see the NVIDIA cuBLAS documentation:
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html>
+--
 
 module Foreign.CUDA.BLAS (
 
