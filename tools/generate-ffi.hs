@@ -32,6 +32,8 @@ main = do
   --
   mkC2HS "Level1" (docs 1) l1exps funsL1
   mkC2HS "Level2" (docs 2) l2exps funsL2
+  mkC2HS "Level3" (docs 3) l3exps funsL3
+
 
 mkC2HS :: String -> [String] -> [String] -> [FunGroup] -> IO ()
 mkC2HS mdl docs exps funs =
@@ -400,27 +402,37 @@ funsL2 =
                                 , dptr a, int, dptr a ]
   ]
 
-  -- , gpA $ \ a   -> fun "?gemm"  [ order, transpose, transpose, int, int, int, a
-  --                               , ptr a, int, ptr a, int, a, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?symm"  [ order, side, uplo, int, int, a, ptr a, int
-  --                               , ptr a, int, a, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?syrk"  [ order, uplo, transpose, int, int, a, ptr a
-  --                               , int, a, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?syr2k" [ order, uplo, transpose, int, int, a, ptr a
-  --                               , int, ptr a, int, a, ptr a, int, void ]
-  -- , gpC $ \ a   -> fun "?hemm"  [ order, side, uplo, int, int, a, ptr a, int
-  --                               , ptr a, int, a, ptr a, int, void ]
-  -- , gpQ $ \ a   -> fun "?herk"  [ order, uplo, transpose, int, int, a
-  --                               , ptr (complex a), int, a
-  --                               , ptr (complex a), int, void ]
-  -- , gpQ $ \ a   -> fun "?her2k" [ order, uplo, transpose, int, int, complex a
-  --                               , ptr (complex a), int, ptr (complex a)
-  --                               , int, a, ptr (complex a), int, void ]
-  -- , gpA $ \ a   -> fun "?trmm"  [ order, side, uplo, transpose, diag, int, int
-  --                               , a, ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?trsm"  [ order, side, uplo, transpose, diag, int, int
-  --                               , a, ptr a, int, ptr a, int, void ]
-  -- ]
+-- Level 3 (matrix-vector) operations.
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-3-function-reference>
+--
+funsL3 :: [FunGroup]
+funsL3 =
+  [ gpA $ \ a   -> fun "?gemm"  [ transpose, transpose, int, int, int, ptr a
+                                , dptr a, int, dptr a, int, ptr a, dptr a, int ]
+
+  , gpA $ \ a   -> fun "?symm"  [ side, uplo, int, int, ptr a, dptr a, int
+                                , dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?syrk"  [ uplo, transpose, int, int, ptr a, dptr a
+                                , int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?syr2k" [ uplo, transpose, int, int, ptr a, dptr a
+                                , int, dptr a, int, ptr a, dptr a, int ]
+
+  , gpA $ \ a   -> fun "?trmm"  [ side, uplo, transpose, diag, int, int
+                                , ptr a, dptr a, int, dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?trsm"  [ side, uplo, transpose, diag, int, int
+                                , ptr a, dptr a, int, dptr a, int ]
+
+  , gpC $ \ a   -> fun "?hemm"  [ side, uplo, int, int, ptr a, dptr a, int
+                                , dptr a, int, ptr a, dptr a, int ]
+  , gpQ $ \ a   -> fun "?herk"  [ uplo, transpose, int, int, ptr a
+                                , dptr (complex a), int, ptr a
+                                , dptr (complex a), int ]
+  , gpQ $ \ a   -> fun "?her2k" [ uplo, transpose, int, int, ptr (complex a)
+                                , dptr (complex a), int, dptr (complex a)
+                                , int, ptr a, dptr (complex a), int ]
+
+  ]
 
 data FunGroup
   = FunGroup

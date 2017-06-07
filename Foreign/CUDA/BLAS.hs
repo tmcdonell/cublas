@@ -48,6 +48,7 @@ module Foreign.CUDA.BLAS (
   -- * Operations
   module Foreign.CUDA.BLAS.Level1,
   module Foreign.CUDA.BLAS.Level2,
+  module Foreign.CUDA.BLAS.Level3,
 
 ) where
 
@@ -57,4 +58,5 @@ import Foreign.CUDA.BLAS.Stream
 
 import Foreign.CUDA.BLAS.Level1
 import Foreign.CUDA.BLAS.Level2
+import Foreign.CUDA.BLAS.Level3
 

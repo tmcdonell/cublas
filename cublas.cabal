@@ -44,6 +44,7 @@ library
       Foreign.CUDA.BLAS.Error
       Foreign.CUDA.BLAS.Level1
       Foreign.CUDA.BLAS.Level2
+      Foreign.CUDA.BLAS.Level3
       Foreign.CUDA.BLAS.Stream
 
   other-modules:
