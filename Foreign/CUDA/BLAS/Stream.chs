@@ -20,6 +20,9 @@ import Foreign.CUDA.Driver.Stream
 import Foreign.CUDA.BLAS.Internal.C2HS
 import Foreign.CUDA.BLAS.Internal.Types
 
+import Foreign.C
+import Foreign.Ptr
+
 #include "cbits/stubs.h"
 {# context lib="cublas" #}
 

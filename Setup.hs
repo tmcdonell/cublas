@@ -1,4 +1,9 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE FlexibleInstances #-}
+
+#ifndef MIN_VERSION_Cabal
+#define MIN_VERSION_Cabal(major1,major2,minor) 0
+#endif
 
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parse
@@ -11,6 +16,11 @@ import Distribution.Simple.Setup
 import Distribution.Simple.Utils                                    hiding ( isInfixOf )
 import Distribution.System
 import Distribution.Verbosity
+
+#if MIN_VERSION_Cabal(1,25,0)
+import Distribution.PackageDescription.PrettyPrint
+import Distribution.Version
+#endif
 
 import Foreign.CUDA.Path
 import System.Directory
@@ -225,4 +235,9 @@ versionInt v =
     []      -> "1"
     [n]     -> show n
     n1:n2:_ -> printf "%d%02d" n1 n2
+
+#if MIN_VERSION_Cabal(1,25,0)
+versionBranch :: Version -> [Int]
+versionBranch = versionNumbers
+#endif
 

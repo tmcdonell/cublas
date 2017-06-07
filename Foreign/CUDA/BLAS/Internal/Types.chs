@@ -15,6 +15,7 @@ module Foreign.CUDA.BLAS.Internal.Types
   where
 
 import Prelude                                            hiding ( Either(..) )
+import Foreign.Ptr
 
 #include "cbits/stubs.h"
 {# context lib="cublas" #}

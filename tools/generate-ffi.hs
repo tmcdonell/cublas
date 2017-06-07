@@ -51,6 +51,7 @@ mkC2HS mdl docs exps funs =
       imps    = [ "Data.Complex"
                 , "Numeric.Half"
                 , "Foreign"
+                , "Foreign.C"
                 , "Foreign.Storable.Complex ()"
                 , "Foreign.CUDA.Ptr"
                 , "Foreign.CUDA.BLAS.Internal.C2HS"
@@ -97,7 +98,7 @@ mkModule exts name docs exps imps body =
     : ""
     : map (printf "{-# LANGUAGE %s #-}") exts
    ++ "{-# OPTIONS_GHC -fno-warn-unused-imports #-}"
-    : "{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}"
+    : "{-# OPTIONS_GHC -fno-warn-unused-binds #-}"
     : "-- |"
     :("-- Module      : " ++ intercalate "." name)
     : "-- Copyright   : [2017] Trevor L. McDonell"

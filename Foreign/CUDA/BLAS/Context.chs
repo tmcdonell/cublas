@@ -32,6 +32,7 @@ import Foreign.CUDA.BLAS.Internal.Types
 
 -- System
 import Foreign
+import Foreign.C
 import Control.Monad                            ( liftM )
 
 #include "cbits/stubs.h"

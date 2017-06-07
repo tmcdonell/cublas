@@ -8,7 +8,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
-{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}
+{-# OPTIONS_GHC -fno-warn-unused-binds #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Level2
 -- Copyright   : [2017] Trevor L. McDonell
@@ -106,6 +106,7 @@ module Foreign.CUDA.BLAS.Level2 (
 import Data.Complex
 import Numeric.Half
 import Foreign
+import Foreign.C
 import Foreign.Storable.Complex ()
 import Foreign.CUDA.Ptr
 import Foreign.CUDA.BLAS.Internal.C2HS
