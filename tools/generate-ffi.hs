@@ -23,8 +23,15 @@ main = do
                 , printf "<http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-%d-function-reference>" l
                 , ""
                 ]
+      l1exps  = []
+      l2exps  = [ "Operation(..)"
+                , "Fill(..)"
+                , "Diagonal(..)"
+                ]
+      l3exps  = l2exps ++ [ "Side(..)" ]
   --
-  mkC2HS "Level1" (docs 1) [] funsL1
+  mkC2HS "Level1" (docs 1) l1exps funsL1
+  mkC2HS "Level2" (docs 2) l2exps funsL2
 
 mkC2HS :: String -> [String] -> [String] -> [FunGroup] -> IO ()
 mkC2HS mdl docs exps funs =
@@ -256,7 +263,7 @@ convType t = case t of
   _                 -> error $ "unmarshallable type: " <> show t
   where
     simple s    = HType "" s ""
-    enum s      = HType "toCEnum" s "fromCEnum"
+    enum s      = HType "cFromEnum" s "cToEnum"
     floating s  = HType ("C" <> s) s ("fromC" <> s)
     -- complex_ s  = HType "withVoidPtr*" s ""
     --
@@ -297,8 +304,8 @@ index = TInt
 transpose :: Type
 transpose = TEnum "Operation"
 
-fill :: Type
-fill = TEnum "Fill"
+uplo :: Type
+uplo = TEnum "Fill"
 
 diag :: Type
 diag = TEnum "Diagonal"
@@ -312,11 +319,12 @@ funInsts safety funs = mangleFun safety <$> concatFunInstances funs
 -- | cuBLAS function signatures. The initial context handle argument is added
 -- implicitly.
 --
+-- Level 1 (vector-vector) operations.
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-1-function-reference>
+--
 funsL1 :: [FunGroup]
 funsL1 =
-  -- Level 1
-  -- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-1-function-reference>
-  --
   [ gpA $ \ a   -> fun "i?amax" [ int, dptr a, int, ptr int ]
   , gpA $ \ a   -> fun "i?amin" [ int, dptr a, int, ptr int ]
   , gpB $ \ a b -> fun "?asum"  [ int, dptr b, int, ptr a ]
@@ -334,70 +342,64 @@ funsL1 =
   , gpA $ \ a   -> fun "?swap"  [ int, dptr a, int, dptr a, int ]
   ]
 
-  -- [ gpR $ \ a   -> fun "?dot"   [ int, ptr a, int, ptr a, int, a ]
-  -- , gpC $ \ a   -> fun "?dotu"  [ int, ptr a, int, ptr a, int, a ]
-  -- , gpC $ \ a   -> fun "?dotc"  [ int, ptr a, int, ptr a, int, a ]
-  -- , gpB $ \ a b -> fun "?nrm2"  [ int, ptr b, int, a ]
-  -- , gpB $ \ a b -> fun "?asum"  [ int, ptr b, int, a ]
-  -- , gpA $ \ a   -> fun "i?amax" [ int, ptr a, int, index ]
-  -- , gpA $ \ a   -> fun "?swap"  [ int, ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?copy"  [ int, ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?axpy"  [ int, a, ptr a, int, ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?rotg"  [ ptr a, ptr a, ptr a, ptr a, void ]
-  -- , gpR $ \ a   -> fun "?rotmg" [ ptr a, ptr a, ptr a, a, ptr a, void ]
-  -- , gpR $ \ a   -> fun "?rot"   [ int, ptr a, int, ptr a, int, a, a, void ]
-  -- , gpR $ \ a   -> fun "?rotm"  [ int, ptr a, int, ptr a, int, ptr a, void ]
-  -- , gpE $ \ a b -> fun "?scal"  [ int, b, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?gemv"  [ order, transpose, int, int, a, ptr a
-  --                               , int, ptr a, int, a, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?gbmv"  [ order, transpose, int, int, int, int, a
-  --                               , ptr a, int, ptr a, int, a, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?trmv"  [ order, uplo, transpose, diag, int
-  --                               , ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?tbmv"  [ order, uplo, transpose, diag, int, int
-  --                               , ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?tpmv"  [ order, uplo, transpose, diag, int
-  --                               , ptr a, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?trsv"  [ order, uplo, transpose, diag, int
-  --                               , ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?tbsv"  [ order, uplo, transpose, diag, int, int
-  --                               , ptr a, int, ptr a, int, void ]
-  -- , gpA $ \ a   -> fun "?tpsv"  [ order, uplo, transpose, diag, int
-  --                               , ptr a, ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?symv"  [ order, uplo, int, a, ptr a, int, ptr a, int
-  --                               , a, ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?sbmv"  [ order, uplo, int, int, a, ptr a, int, ptr a
-  --                               , int, a, ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?spmv"  [ order, uplo, int, a, ptr a, ptr a, int, a
-  --                               , ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?ger"   [ order, int, int, a, ptr a, int, ptr a
-  --                               , int, ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?syr"   [ order, uplo, int, a, ptr a, int, ptr a
-  --                               , int, void ]
-  -- , gpR $ \ a   -> fun "?syr2"  [ order, uplo, int, a, ptr a, int, ptr a
-  --                               , int, ptr a, int, void ]
-  -- , gpR $ \ a   -> fun "?spr"   [ order, uplo, int, a, ptr a
-  --                               , int, ptr a, void ]
-  -- , gpR $ \ a   -> fun "?spr2"  [ order, uplo, int, a, ptr a, int, ptr a
-  --                               , int, ptr a, void ]
-  -- , gpC $ \ a   -> fun "?hemv"  [ order, uplo, int, a, ptr a, int, ptr a
-  --                               , int, a, ptr a, int, void ]
-  -- , gpC $ \ a   -> fun "?hbmv"  [ order, uplo, int, int, a, ptr a
-  --                               , int, ptr a, int, a, ptr a, int, void ]
-  -- , gpC $ \ a   -> fun "?hpmv"  [ order, uplo, int, a, ptr a, ptr a
-  --                               , int, a, ptr a, int, void ]
-  -- , gpC $ \ a   -> fun "?geru"  [ order, int, int, a, ptr a, int
-  --                               , ptr a , int, ptr a, int, void ]
-  -- , gpC $ \ a   -> fun "?gerc"  [ order, int, int, a, ptr a, int
-  --                               , ptr a, int, ptr a, int, void ]
-  -- , gpQ $ \ a   -> fun "?her"   [ order, uplo, int, a, ptr (complex a), int
-  --                               , ptr (complex a), int, void ]
-  -- , gpQ $ \ a   -> fun "?hpr"   [ order, uplo, int, a, ptr (complex a), int
-  --                               , ptr (complex a), void ]
-  -- , gpC $ \ a   -> fun "?her2"  [ order, uplo, int, a, ptr a, int
-  --                               , ptr a, int, ptr a, int, void ]
-  -- , gpC $ \ a   -> fun "?hpr2"  [ order, uplo, int, a, ptr a, int
-  --                               , ptr a, int, ptr a, void ]
+-- Level 2 (matrix-vector) operations.
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublas-level-2-function-reference>
+--
+funsL2 :: [FunGroup]
+funsL2 =
+  [ gpA $ \ a   -> fun "?gbmv"  [ transpose, int, int, int, int, ptr a
+                                , dptr a, int, dptr a, int, ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?gemv"  [ transpose, int, int, ptr a, dptr a
+                                , int, dptr a, int, ptr a, dptr a, int ]
+  , gpR $ \ a   -> fun "?ger"   [ int, int, ptr a, dptr a, int, dptr a
+                                , int, dptr a, int ]
+  , gpC $ \ a   -> fun "?gerc"  [ int, int, ptr a, dptr a, int
+                                , dptr a, int, dptr a, int ]
+  , gpC $ \ a   -> fun "?geru"  [ int, int, ptr a, dptr a, int
+                                , dptr a, int, dptr a, int ]
+  , gpR $ \ a   -> fun "?sbmv"  [ uplo, int, int, ptr a, dptr a, int, dptr a
+                                , int, ptr a, dptr a, int ]
+  , gpR $ \ a   -> fun "?spmv"  [ uplo, int, ptr a, dptr a, dptr a, int, ptr a
+                                , dptr a, int ]
+  , gpR $ \ a   -> fun "?spr"   [ uplo, int, ptr a, dptr a
+                                , int, dptr a ]
+  , gpR $ \ a   -> fun "?spr2"  [ uplo, int, ptr a, dptr a, int, dptr a
+                                , int, dptr a ]
+  , gpA $ \ a   -> fun "?symv"  [ uplo, int, ptr a, dptr a, int, dptr a, int
+                                , ptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?syr"   [ uplo, int, ptr a, dptr a, int, dptr a
+                                , int ]
+  , gpA $ \ a   -> fun "?syr2"  [ uplo, int, ptr a, dptr a, int, dptr a
+                                , int, dptr a, int ]
+  , gpA $ \ a   -> fun "?tbmv"  [ uplo, transpose, diag, int, int
+                                , dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?tbsv"  [ uplo, transpose, diag, int, int
+                                , dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?tpmv"  [ uplo, transpose, diag, int
+                                , dptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?tpsv"  [ uplo, transpose, diag, int
+                                , dptr a, dptr a, int ]
+  , gpA $ \ a   -> fun "?trmv"  [ uplo, transpose, diag, int
+                                , dptr a, int, dptr a, int ]
+  , gpA $ \ a   -> fun "?trsv"  [ uplo, transpose, diag, int
+                                , dptr a, int, dptr a, int ]
+  , gpC $ \ a   -> fun "?hemv"  [ uplo, int, ptr a, dptr a, int, dptr a
+                                , int, ptr a, dptr a, int ]
+  , gpC $ \ a   -> fun "?hbmv"  [ uplo, int, int, ptr a, dptr a
+                                , int, dptr a, int, ptr a, dptr a, int ]
+  , gpC $ \ a   -> fun "?hpmv"  [ uplo, int, ptr a, dptr a, dptr a
+                                , int, ptr a, dptr a, int ]
+  , gpQ $ \ a   -> fun "?her"   [ uplo, int, ptr a, dptr (complex a), int
+                                , dptr (complex a), int ]
+  , gpC $ \ a   -> fun "?her2"  [ uplo, int, ptr a, dptr a, int
+                                , dptr a, int, dptr a, int ]
+  , gpQ $ \ a   -> fun "?hpr"   [ uplo, int, ptr a, dptr (complex a), int
+                                , dptr (complex a) ]
+  , gpC $ \ a   -> fun "?hpr2"  [ uplo, int, ptr a, dptr a, int
+                                , dptr a, int, dptr a ]
+  ]
+
   -- , gpA $ \ a   -> fun "?gemm"  [ order, transpose, transpose, int, int, int, a
   --                               , ptr a, int, ptr a, int, a, ptr a, int, void ]
   -- , gpA $ \ a   -> fun "?symm"  [ order, side, uplo, int, int, a, ptr a, int
