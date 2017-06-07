@@ -87,10 +87,6 @@ module Foreign.CUDA.BLAS.Level3 (
   dgetrfBatched,
   cgetrfBatched,
   zgetrfBatched,
-  sgetrsBatched,
-  dgetrsBatched,
-  cgetrsBatched,
-  zgetrsBatched,
   sgetriBatched,
   dgetriBatched,
   cgetriBatched,
@@ -115,6 +111,12 @@ module Foreign.CUDA.BLAS.Level3 (
   dtrttp,
   ctrttp,
   ztrttp,
+#if CUDA_VERSION >= 7000
+  sgetrsBatched,
+  dgetrsBatched,
+  cgetrsBatched,
+  zgetrsBatched,
+#endif
 #if CUDA_VERSION >= 7500
   hgemm,
   sgemmEx,
@@ -329,18 +331,6 @@ useHostP = useHostPtr . castHostPtr
 {-# INLINEABLE zgetrfBatched #-}
 {# fun unsafe cublasZgetrfBatched as zgetrfBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', castPtr `Ptr Int32', castPtr `Ptr Int32', `Int' } -> `()' checkStatus* #}
 
-{-# INLINEABLE sgetrsBatched #-}
-{# fun unsafe cublasSgetrsBatched as sgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Float)', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
-
-{-# INLINEABLE dgetrsBatched #-}
-{# fun unsafe cublasDgetrsBatched as dgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Double)', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
-
-{-# INLINEABLE cgetrsBatched #-}
-{# fun unsafe cublasCgetrsBatched as cgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
-
-{-# INLINEABLE zgetrsBatched #-}
-{# fun unsafe cublasZgetrsBatched as zgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
-
 {-# INLINEABLE sgetriBatched #-}
 {# fun unsafe cublasSgetriBatched as sgetriBatched { useHandle `Handle', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', `Int' } -> `()' checkStatus* #}
 
@@ -412,6 +402,20 @@ useHostP = useHostPtr . castHostPtr
 
 {-# INLINEABLE ztrttp #-}
 {# fun unsafe cublasZtrttp as ztrttp { useHandle `Handle', cFromEnum `Fill', `Int', useDevP `DevicePtr (Complex Double)', `Int', useDevP `DevicePtr (Complex Double)' } -> `()' checkStatus* #}
+#if CUDA_VERSION >= 7000
+
+{-# INLINEABLE sgetrsBatched #-}
+{# fun unsafe cublasSgetrsBatched as sgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr Float)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Float)', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE dgetrsBatched #-}
+{# fun unsafe cublasDgetrsBatched as dgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr Double)', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr Double)', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE cgetrsBatched #-}
+{# fun unsafe cublasCgetrsBatched as cgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Float))', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+
+{-# INLINEABLE zgetrsBatched #-}
+{# fun unsafe cublasZgetrsBatched as zgetrsBatched { useHandle `Handle', cFromEnum `Operation', `Int', `Int', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useDevP `DevicePtr Int32', useDevP `DevicePtr (DevicePtr (Complex Double))', `Int', useHostP `HostPtr Int32', `Int' } -> `()' checkStatus* #}
+#endif
 #if CUDA_VERSION >= 7500
 
 {-# INLINEABLE hgemm #-}

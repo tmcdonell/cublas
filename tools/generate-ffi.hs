@@ -37,6 +37,7 @@ main = do
   mkC2HS "Level1" (docs 1) l1exps [(Nothing,   funsL1)]
   mkC2HS "Level2" (docs 2) l2exps [(Nothing,   funsL2)]
   mkC2HS "Level3" (docs 3) l3exps [(Nothing,   funsL3)
+                                  ,(Just 7000, funsL3_cuda70)
                                   ,(Just 7500, funsL3_cuda75)
                                   ,(Just 8000, funsL3_cuda80)
                                   ]
@@ -431,13 +432,21 @@ funsL3 =
   , gpA $ \ a   -> ext "?geam"          [ transpose, transpose, int, int, ptr a, dptr a, int, ptr a, dptr a, int, dptr a, int ]
   , gpA $ \ a   -> ext "?dgmm"          [ side, int, int, dptr a, int, dptr a, int, dptr a, int ]
   , gpA $ \ a   -> ext "?getrfBatched"  [ int, dptr (dptr a), int, ptr int32, ptr int32, int ]
-  , gpA $ \ a   -> ext "?getrsBatched"  [ transpose, int, int, dptr (dptr a), int, dptr int32, dptr (dptr a), int, hptr int32, int ]
   , gpA $ \ a   -> ext "?getriBatched"  [ int, dptr (dptr a), int, dptr int32, dptr (dptr a), int, dptr int32, int ]
   , gpA $ \ a   -> ext "?matinvBatched" [ int, dptr (dptr a), int, dptr (dptr a), int, dptr int32, int ]
   , gpA $ \ a   -> ext "?geqrfBatched"  [ int, int, dptr (dptr a), int, dptr (dptr a), hptr int32, int ]
   , gpA $ \ a   -> ext "?gelsBatched"   [ transpose, int, int, int, dptr (dptr a), int, dptr (dptr a), int, hptr int32, dptr int32, int ]
   , gpA $ \ a   -> ext "?tpttr"         [ uplo, int, dptr a, dptr a, int ]
   , gpA $ \ a   -> ext "?trttp"         [ uplo, int, dptr a, int, dptr a ]
+  ]
+
+-- Level 3 operations introduced in CUDA-7.0
+--
+funsL3_cuda70 :: [FunGroup]
+funsL3_cuda70 =
+  [ gpA $ \ a   -> ext "?getrsBatched"  [ transpose, int, int, dptr (dptr a), int, dptr int32, dptr (dptr a), int, hptr int32, int ]
+  ]
+
 -- Level 3 operations introduced in CUDA-7.5
 --
 funsL3_cuda75 :: [FunGroup]
