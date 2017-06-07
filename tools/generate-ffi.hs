@@ -69,14 +69,17 @@ mkC2HS mdl docs exps funs =
               : ""
               : content
 
-      wrap f (Nothing, fg) = f fg
-      wrap f (Just v,  fg) = printf "#if CUDA_VERSION >= %d" v
-                           : f fg
-                          ++ ["#endif"]
+      mkFuns (Nothing, fg) = map mkFun fg
+      mkFuns (Just v,  fg) = printf "#if CUDA_VERSION >= %d" v
+                           : map mkFun fg
+                          ++ "#else"
+                           : map (mkDummyFun (fromIntegral v / 1000)) fg
+                          ++ "#endif"
+                           : []
 
       fis     = map (\(r,f) -> (r, funInsts Unsafe f)) funs
-      exps'   = exps ++ concatMap (wrap (map cfName)) fis
-      content = concatMap (wrap (map mkFun)) fis
+      exps'   = exps ++ concatMap (map cfName . snd) fis
+      content = concatMap mkFuns fis
   in
   writeFile path $ mkModule exts name docs exps' imps body
 
@@ -94,9 +97,6 @@ mkModule exts name docs exps imps body =
     $ "--"
     : "-- This module is auto-generated. Do not edit directly."
     : "--"
-    : ""
-    : "#include \"cbits/stubs.h\""
-    : "{# context lib=\"cublas\" #}"
     : ""
     : map (printf "{-# LANGUAGE %s #-}") exts
    ++ "{-# OPTIONS_GHC -fno-warn-unused-imports #-}"
@@ -118,6 +118,9 @@ mkModule exts name docs exps imps body =
     : ""
     : map (printf "import %s") imps
    ++ ""
+    : "#include \"cbits/stubs.h\""
+    : "{# context lib=\"cublas\" #}"
+    : ""
     : body
 
 
@@ -136,6 +139,19 @@ mkFun (CFun safe name suffix params ret doc) =
     safe'   = if safe then "" else " unsafe"
     params' = intercalate ", " $ fmap (mkParamType . convType) params
     ret'    = mkRetType $ convType ret
+
+mkDummyFun :: Double -> CFun -> String
+mkDummyFun minv (CFun _ name _ params ret doc) =
+  intercalate "\n"
+    [ if null doc then "" else "-- | " <> doc
+    , printf "%s :: %s -> IO %s" name params' ret'
+    , printf "%s = cublasError \"'%s' requires at least cuda-%3.1f\"" name name minv
+    ]
+  where
+    params' = intercalate " -> " $ map (hsType . convType) params
+    ret'    = hsType (convType ret)
+    hsType (HType _ s _) = s
+
 
 data Safety
   = Safe
