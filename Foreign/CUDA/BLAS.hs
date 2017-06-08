@@ -29,7 +29,75 @@
 --
 -- [/Example/]
 --
--- TBD
+-- At a short example, we show how to compute the following matrix-matrix
+-- product with 'dgemm':
+--
+-- \[
+-- \left(\begin{matrix} 1 & 2 \\ 3 & 4 \\ 5 & 6 \\ \end{matrix}\right) \cdot
+-- \left(\begin{matrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ \end{matrix}\right)  =
+-- \left(\begin{matrix} 9 & 12 & 15 \\ 19 & 26 & 33 \\ 29 & 40 & 51 \\ \end{matrix}\right)
+-- \]
+--
+-- I assume you know how to initialise the CUDA
+-- environment, as described in the "Foreign.CUDA.Driver" module:
+--
+-- >>> import Foreign.CUDA.Driver as CUDA
+-- >>> import Foreign.CUDA.BLAS as BLAS
+-- >>> CUDA.initialise []
+-- >>> dev <- CUDA.device 0
+-- >>> ctx <- CUDA.create dev []
+--
+-- Just as we must create a CUDA execution context with
+-- 'Foreign.CUDA.Driver.create' before interacting with the GPU, we must create
+-- a BLAS context handle before executing any cuBLAS library operations, which
+-- will be associated with the current device context:
+--
+-- >>> hdl <- BLAS.create
+--
+-- Now, let us generate the matrix data on the GPU. (For simplicity in this
+-- example we will just marshal the data via lists, but in a real application
+-- with a large amount of data we should of course use some kind of unboxed
+-- array):
+--
+-- >>> let rowsA = 3; colsA = 2; sizeA = rowsA * colsA
+-- >>> let rowsB = 2; colsB = 3; sizeB = rowsB * colsB
+-- >>> let sizeC = rowsA * colsB
+-- >>> matA <- CUDA.newListArray (take sizeA [1..])
+-- >>> matB <- CUDA.newListArray (take sizeB [1..])
+-- >>> matC <- CUDA.mallocArray sizeC
+--
+-- Note in the above that we store data in row-major order, as is the convention
+-- in C. However, the cuBLAS library assumes a column-major representation, as
+-- is the style of Fortran. However, we can make use of the following
+-- equivalency:
+--
+-- \[
+-- B^T \cdot A^T = (A \cdot B)^T
+-- \]
+--
+-- The final thing to take care of are the scaling parameters to the 'dgemm'
+-- operation, \(\alpha\) and \(\beta\). By default, it is assumed that these
+-- values reside in host memory, but this setting can be changed with
+-- 'setPointerMode'; When set to 'Device' mode, the function
+-- 'Foreign.CUDA.Ptr.withDevicePtr' can be used to treat the device memory
+-- pointer as a plain pointer to pass to the function.
+--
+-- Now, we are ready to piece it all together:
+--
+-- >>> import Foreign.Marshal
+-- >>> with 1.0 $ \alpha ->
+-- >>> with 0.0 $ \beta ->
+-- >>>   dgemm hdl N N colsB rowsA colsA alpha matB colsB matA colsA beta matC colsB
+--
+-- And retrieve the result:
+--
+-- >>> print =<< CUDA.peekListArray sizeC matC
+-- [9.0,12.0,15.0,19.0,26.0,33.0,29.0,40.0,51.0]
+--
+-- Finally, we should 'Foreign.CUDA.Driver.free' the device memory we allocated,
+-- and release the BLAS context handle:
+--
+-- >>> BLAS.destroy hdl
 --
 -- [/Additional information/]
 --
