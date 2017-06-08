@@ -124,7 +124,7 @@ module Foreign.CUDA.BLAS (
 
 ) where
 
-import Foreign.CUDA.BLAS.Context                hiding ( Handle(Handle, useHandle) )
+import Foreign.CUDA.BLAS.Context                hiding ( useHandle )
 import Foreign.CUDA.BLAS.Error                  hiding ( resultIfOk, nothingIfOk )
 import Foreign.CUDA.BLAS.Stream
 
