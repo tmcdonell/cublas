@@ -142,6 +142,7 @@ import Foreign
 import Foreign.C
 import Foreign.Storable.Complex ()
 import Foreign.CUDA.Ptr
+import Foreign.CUDA.BLAS.Error
 import Foreign.CUDA.BLAS.Internal.C2HS
 import Foreign.CUDA.BLAS.Internal.Types
 
@@ -412,16 +413,16 @@ useHostP = useHostPtr . castHostPtr
 #else
 
 sgetrsBatched :: Handle -> Operation -> Int -> Int -> DevicePtr (DevicePtr Float) -> Int -> DevicePtr Int32 -> DevicePtr (DevicePtr Float) -> Int -> HostPtr Int32 -> Int -> IO ()
-sgetrsBatched = cublasError "'sgetrsBatched' requires at least cuda-7.0"
+sgetrsBatched _ _ _ _ _ _ _ _ _ _ _ = cublasError "'sgetrsBatched' requires at least cuda-7.0"
 
 dgetrsBatched :: Handle -> Operation -> Int -> Int -> DevicePtr (DevicePtr Double) -> Int -> DevicePtr Int32 -> DevicePtr (DevicePtr Double) -> Int -> HostPtr Int32 -> Int -> IO ()
-dgetrsBatched = cublasError "'dgetrsBatched' requires at least cuda-7.0"
+dgetrsBatched _ _ _ _ _ _ _ _ _ _ _ = cublasError "'dgetrsBatched' requires at least cuda-7.0"
 
 cgetrsBatched :: Handle -> Operation -> Int -> Int -> DevicePtr (DevicePtr (Complex Float)) -> Int -> DevicePtr Int32 -> DevicePtr (DevicePtr (Complex Float)) -> Int -> HostPtr Int32 -> Int -> IO ()
-cgetrsBatched = cublasError "'cgetrsBatched' requires at least cuda-7.0"
+cgetrsBatched _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cgetrsBatched' requires at least cuda-7.0"
 
 zgetrsBatched :: Handle -> Operation -> Int -> Int -> DevicePtr (DevicePtr (Complex Double)) -> Int -> DevicePtr Int32 -> DevicePtr (DevicePtr (Complex Double)) -> Int -> HostPtr Int32 -> Int -> IO ()
-zgetrsBatched = cublasError "'zgetrsBatched' requires at least cuda-7.0"
+zgetrsBatched _ _ _ _ _ _ _ _ _ _ _ = cublasError "'zgetrsBatched' requires at least cuda-7.0"
 #endif
 #if CUDA_VERSION >= 7500
 
@@ -433,10 +434,10 @@ zgetrsBatched = cublasError "'zgetrsBatched' requires at least cuda-7.0"
 #else
 
 hgemm :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr Half -> DevicePtr Half -> Int -> DevicePtr Half -> Int -> Ptr Half -> DevicePtr Half -> Int -> IO ()
-hgemm = cublasError "'hgemm' requires at least cuda-7.5"
+hgemm _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'hgemm' requires at least cuda-7.5"
 
 sgemmEx :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr Float -> DevicePtr () -> Type -> Int -> DevicePtr () -> Type -> Int -> Ptr Float -> DevicePtr () -> Type -> Int -> IO ()
-sgemmEx = cublasError "'sgemmEx' requires at least cuda-7.5"
+sgemmEx _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'sgemmEx' requires at least cuda-7.5"
 #endif
 #if CUDA_VERSION >= 8000
 
@@ -499,59 +500,59 @@ sgemmEx = cublasError "'sgemmEx' requires at least cuda-7.5"
 #else
 
 cgemm3m :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr (Complex Float) -> DevicePtr (Complex Float) -> Int -> DevicePtr (Complex Float) -> Int -> Ptr (Complex Float) -> DevicePtr (Complex Float) -> Int -> IO ()
-cgemm3m = cublasError "'cgemm3m' requires at least cuda-8.0"
+cgemm3m _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cgemm3m' requires at least cuda-8.0"
 
 zgemm3m :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr (Complex Double) -> DevicePtr (Complex Double) -> Int -> DevicePtr (Complex Double) -> Int -> Ptr (Complex Double) -> DevicePtr (Complex Double) -> Int -> IO ()
-zgemm3m = cublasError "'zgemm3m' requires at least cuda-8.0"
+zgemm3m _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'zgemm3m' requires at least cuda-8.0"
 
 sgemmStridedBatched :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr Float -> DevicePtr Float -> Int -> Int64 -> DevicePtr Float -> Int -> Int64 -> Ptr Float -> DevicePtr Float -> Int -> Int64 -> Int -> IO ()
-sgemmStridedBatched = cublasError "'sgemmStridedBatched' requires at least cuda-8.0"
+sgemmStridedBatched _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'sgemmStridedBatched' requires at least cuda-8.0"
 
 dgemmStridedBatched :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr Double -> DevicePtr Double -> Int -> Int64 -> DevicePtr Double -> Int -> Int64 -> Ptr Double -> DevicePtr Double -> Int -> Int64 -> Int -> IO ()
-dgemmStridedBatched = cublasError "'dgemmStridedBatched' requires at least cuda-8.0"
+dgemmStridedBatched _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'dgemmStridedBatched' requires at least cuda-8.0"
 
 cgemmStridedBatched :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr (Complex Float) -> DevicePtr (Complex Float) -> Int -> Int64 -> DevicePtr (Complex Float) -> Int -> Int64 -> Ptr (Complex Float) -> DevicePtr (Complex Float) -> Int -> Int64 -> Int -> IO ()
-cgemmStridedBatched = cublasError "'cgemmStridedBatched' requires at least cuda-8.0"
+cgemmStridedBatched _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cgemmStridedBatched' requires at least cuda-8.0"
 
 zgemmStridedBatched :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr (Complex Double) -> DevicePtr (Complex Double) -> Int -> Int64 -> DevicePtr (Complex Double) -> Int -> Int64 -> Ptr (Complex Double) -> DevicePtr (Complex Double) -> Int -> Int64 -> Int -> IO ()
-zgemmStridedBatched = cublasError "'zgemmStridedBatched' requires at least cuda-8.0"
+zgemmStridedBatched _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'zgemmStridedBatched' requires at least cuda-8.0"
 
 hgemmStridedBatched :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr Half -> DevicePtr Half -> Int -> Int64 -> DevicePtr Half -> Int -> Int64 -> Ptr Half -> DevicePtr Half -> Int -> Int64 -> Int -> IO ()
-hgemmStridedBatched = cublasError "'hgemmStridedBatched' requires at least cuda-8.0"
+hgemmStridedBatched _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'hgemmStridedBatched' requires at least cuda-8.0"
 
 cgemm3mStridedBatched :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr (Complex Float) -> DevicePtr (Complex Float) -> Int -> Int64 -> DevicePtr (Complex Float) -> Int -> Int64 -> Ptr (Complex Float) -> DevicePtr (Complex Float) -> Int -> Int64 -> Int -> IO ()
-cgemm3mStridedBatched = cublasError "'cgemm3mStridedBatched' requires at least cuda-8.0"
+cgemm3mStridedBatched _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cgemm3mStridedBatched' requires at least cuda-8.0"
 
 cgemmEx :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr (Complex Float) -> DevicePtr () -> Type -> Int -> DevicePtr () -> Type -> Int -> Ptr (Complex Float) -> DevicePtr () -> Type -> Int -> IO ()
-cgemmEx = cublasError "'cgemmEx' requires at least cuda-8.0"
+cgemmEx _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cgemmEx' requires at least cuda-8.0"
 
 gemmEx :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr () -> DevicePtr () -> Type -> Int -> DevicePtr () -> Type -> Int -> Ptr () -> DevicePtr () -> Type -> Int -> Type -> GemmAlgorithm -> IO ()
-gemmEx = cublasError "'gemmEx' requires at least cuda-8.0"
+gemmEx _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'gemmEx' requires at least cuda-8.0"
 
 csyrkEx :: Handle -> Fill -> Operation -> Int -> Int -> Ptr Float -> DevicePtr () -> Type -> Int -> Ptr Float -> DevicePtr (Complex Float) -> Type -> Int -> IO ()
-csyrkEx = cublasError "'csyrkEx' requires at least cuda-8.0"
+csyrkEx _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'csyrkEx' requires at least cuda-8.0"
 
 csyrk3mEx :: Handle -> Fill -> Operation -> Int -> Int -> Ptr Float -> DevicePtr () -> Type -> Int -> Ptr Float -> DevicePtr (Complex Float) -> Type -> Int -> IO ()
-csyrk3mEx = cublasError "'csyrk3mEx' requires at least cuda-8.0"
+csyrk3mEx _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'csyrk3mEx' requires at least cuda-8.0"
 
 cherkEx :: Handle -> Fill -> Operation -> Int -> Int -> Ptr Float -> DevicePtr () -> Type -> Int -> Ptr Float -> DevicePtr (Complex Float) -> Type -> Int -> IO ()
-cherkEx = cublasError "'cherkEx' requires at least cuda-8.0"
+cherkEx _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cherkEx' requires at least cuda-8.0"
 
 cherk3mEx :: Handle -> Fill -> Operation -> Int -> Int -> Ptr Float -> DevicePtr () -> Type -> Int -> Ptr Float -> DevicePtr (Complex Float) -> Type -> Int -> IO ()
-cherk3mEx = cublasError "'cherk3mEx' requires at least cuda-8.0"
+cherk3mEx _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'cherk3mEx' requires at least cuda-8.0"
 
 nrm2Ex :: Handle -> Int -> DevicePtr () -> Type -> Int -> Ptr () -> Type -> Type -> IO ()
-nrm2Ex = cublasError "'nrm2Ex' requires at least cuda-8.0"
+nrm2Ex _ _ _ _ _ _ _ _ = cublasError "'nrm2Ex' requires at least cuda-8.0"
 
 axpyEx :: Handle -> Int -> Ptr () -> Type -> DevicePtr () -> Type -> Int -> DevicePtr () -> Type -> Int -> Type -> IO ()
-axpyEx = cublasError "'axpyEx' requires at least cuda-8.0"
+axpyEx _ _ _ _ _ _ _ _ _ _ _ = cublasError "'axpyEx' requires at least cuda-8.0"
 
 dotEx :: Handle -> Int -> DevicePtr () -> Type -> Int -> DevicePtr () -> Type -> Int -> Ptr () -> Type -> Type -> IO ()
-dotEx = cublasError "'dotEx' requires at least cuda-8.0"
+dotEx _ _ _ _ _ _ _ _ _ _ _ = cublasError "'dotEx' requires at least cuda-8.0"
 
 dotcEx :: Handle -> Int -> DevicePtr () -> Type -> Int -> DevicePtr () -> Type -> Int -> Ptr () -> Type -> Type -> IO ()
-dotcEx = cublasError "'dotcEx' requires at least cuda-8.0"
+dotcEx _ _ _ _ _ _ _ _ _ _ _ = cublasError "'dotcEx' requires at least cuda-8.0"
 
 scalEx :: Handle -> Int -> Ptr () -> Type -> DevicePtr () -> Type -> Int -> Type -> IO ()
-scalEx = cublasError "'scalEx' requires at least cuda-8.0"
+scalEx _ _ _ _ _ _ _ _ = cublasError "'scalEx' requires at least cuda-8.0"
 #endif

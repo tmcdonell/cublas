@@ -85,6 +85,7 @@ import Foreign
 import Foreign.C
 import Foreign.Storable.Complex ()
 import Foreign.CUDA.Ptr
+import Foreign.CUDA.BLAS.Error
 import Foreign.CUDA.BLAS.Internal.C2HS
 import Foreign.CUDA.BLAS.Internal.Types
 

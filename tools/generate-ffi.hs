@@ -56,6 +56,7 @@ mkC2HS mdl docs exps funs =
                 , "Foreign.C"
                 , "Foreign.Storable.Complex ()"
                 , "Foreign.CUDA.Ptr"
+                , "Foreign.CUDA.BLAS.Error"
                 , "Foreign.CUDA.BLAS.Internal.C2HS"
                 , "Foreign.CUDA.BLAS.Internal.Types"
                 ]
@@ -145,10 +146,11 @@ mkDummyFun minv (CFun _ name _ params ret doc) =
   intercalate "\n"
     [ if null doc then "" else "-- | " <> doc
     , printf "%s :: %s -> IO %s" name params' ret'
-    , printf "%s = cublasError \"'%s' requires at least cuda-%3.1f\"" name name minv
+    , printf "%s %s = cublasError \"'%s' requires at least cuda-%3.1f\"" name ignore name minv
     ]
   where
     params' = intercalate " -> " $ map (hsType . convType) params
+    ignore  = unwords $ replicate (length params) "_"
     ret'    = hsType (convType ret)
     hsType (HType _ s _) = s
 
