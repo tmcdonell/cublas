@@ -75,6 +75,10 @@
 -- B^T \cdot A^T = (A \cdot B)^T
 -- \]
 --
+-- and, since the transposed matrix in column-major representation is equivalent
+-- to our matrix in row-major representation, we can avoid any actual data
+-- manipulation to get things into a form suitable for cuBLAS (phew!).
+--
 -- The final thing to take care of are the scaling parameters to the 'dgemm'
 -- operation, \(\alpha\) and \(\beta\). By default, it is assumed that these
 -- values reside in host memory, but this setting can be changed with
