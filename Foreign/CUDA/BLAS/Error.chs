@@ -42,7 +42,7 @@ describe MappingError    = "access to GPU memory failed"
 describe ExecutionFailed = "execution failed"
 describe InternalError   = "internal error"
 describe NotSupported    = "not supported"
-#if CUDA_VERSION >= 7500
+#if CUDA_VERSION >= 6500
 describe LicenseError    = "license error"
 #endif
 
