@@ -53,12 +53,14 @@ library
       Foreign.CUDA.BLAS.Internal.Types
 
   build-depends:
-        base                            == 4.*
-      , cuda                            >= 0.8
-      , half                            >= 0.1
-      , storable-complex                >= 0.2
+      base                              == 4.*
+    , cuda                              >= 0.8
+    , half                              >= 0.1
+    , storable-complex                  >= 0.2
 
-  build-tools:          c2hs >= 0.16
+  build-tools:
+      c2hs                              >= 0.16
+
   ghc-options:
       -Wall
       -O2
@@ -75,4 +77,3 @@ source-repository this
     tag:                0.3.0.0
 
 -- vim: nospell
-
