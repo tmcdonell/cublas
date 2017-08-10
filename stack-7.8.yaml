@@ -1,16 +1,36 @@
+# For more information, see: https://github.com/commercialhaskell/stack/blob/release/doc/yaml_configuration.md
 # vim: nospell
-#
+
 resolver: lts-2.22
 
 packages:
 - '.'
 - location:
     git:    https://github.com/tmcdonell/cuda.git
-    commit: 1bff17152088384b71a439b01ec993a54e2618c9
+    commit: 39f4f3b16fa1a3d07669b4587ebce409a06a824c
   extra-dep: true
 
 extra-deps:
 - 'Cabal-1.22.4.0'
 
+# Override default flag values for local packages and extra-deps
 flags: {}
+
+# Extra global and per-package GHC options
+# ghc-options: {}
+
+# Control whether we use the GHC we find on the path
+# system-ghc: true
+
+# Require a specific version of stack, using version ranges
+# require-stack-version: -any # Default
+# require-stack-version: >= 0.1.4.0
+
+# Override the architecture used by stack, especially useful on Windows
+# arch: i386
+# arch: x86_64
+
+# Extra directories used by stack for building
+# extra-include-dirs: [/path/to/dir]
+# extra-lib-dirs: [/path/to/dir]
 
