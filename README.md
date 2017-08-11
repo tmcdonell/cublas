@@ -11,3 +11,5 @@ developer toolkit:
 
   <http://developer.nvidia.com/cuda-downloads>
 
+  <http://docs.nvidia.com/cuda/cublas/index.html>
+
