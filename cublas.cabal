@@ -66,6 +66,7 @@ library
       -O2
       -funbox-strict-fields
       -fwarn-tabs
+      -fno-warn-unused-imports
 
 source-repository head
     type:               git
