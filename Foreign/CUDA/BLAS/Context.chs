@@ -47,13 +47,10 @@ import Control.Monad                            ( liftM )
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublascreate>
 --
 {-# INLINEABLE create #-}
-create :: IO Handle
-create = resultIfOk =<< cublasCreate_v2
+{# fun unsafe cublasCreate_v2 as create
+  { alloca- `Handle' peekHdl* } -> `()' checkStatus*- #}
   where
-    {# fun unsafe cublasCreate_v2
-      { alloca- `Handle' peekHdl* } -> `Status' cToEnum #}
-      where
-        peekHdl = liftM Handle . peek
+    peekHdl = liftM Handle . peek
 
 
 -- | This function releases hardware resources used by the CUBLAS library. The
@@ -90,15 +87,12 @@ create = resultIfOk =<< cublasCreate_v2
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublasgetpointermode>
 --
 {-# INLINEABLE getPointerMode #-}
-getPointerMode :: Handle -> IO PointerMode
-getPointerMode h = resultIfOk =<< cublasGetPointerMode_v2 h
+{# fun unsafe cublasGetPointerMode_v2 as getPointerMode
+  { useHandle `Handle'
+  , alloca-   `PointerMode' peekPM*
+  }
+  -> `()' checkStatus*- #}
   where
-    {# fun unsafe cublasGetPointerMode_v2
-      { useHandle `Handle'
-      , alloca-   `PointerMode' peekPM*
-      }
-      -> `Status' cToEnum #}
-
     peekPM = liftM cToEnum . peek
 
 
@@ -122,14 +116,11 @@ getPointerMode h = resultIfOk =<< cublasGetPointerMode_v2 h
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublasgetatomicsmode>
 --
 {-# INLINEABLE getAtomicsMode #-}
-getAtomicsMode :: Handle -> IO AtomicsMode
-getAtomicsMode h = resultIfOk =<< cublasGetAtomicsMode h
+{# fun unsafe cublasGetAtomicsMode as getAtomicsMode
+  { useHandle `Handle'
+  , alloca-   `AtomicsMode' peekAM*
+  }
+  -> `()' checkStatus*- #}
   where
-    {# fun unsafe cublasGetAtomicsMode
-      { useHandle `Handle'
-      , alloca-   `AtomicsMode' peekAM*
-      }
-      -> `Status' cToEnum #}
-
     peekAM = liftM cToEnum . peek
 
