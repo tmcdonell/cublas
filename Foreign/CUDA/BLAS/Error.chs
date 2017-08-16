@@ -14,9 +14,13 @@
 module Foreign.CUDA.BLAS.Error
   where
 
--- System
-import Data.Typeable
+-- friends
+import Foreign.CUDA.BLAS.Internal.C2HS
+
+-- system
 import Control.Exception
+import Data.Typeable
+import Foreign.C.Types
 
 #include "cbits/stubs.h"
 {# context lib="cublas" #}
@@ -70,6 +74,7 @@ cublasError s = throwIO (UserError s)
 -- | Return the results of a function on successful execution, otherwise throw
 -- an exception with an error string associated with the return code
 --
+{-# INLINE resultIfOk #-}
 resultIfOk :: (Status, a) -> IO a
 resultIfOk (status,result) =
     case status of
@@ -80,9 +85,14 @@ resultIfOk (status,result) =
 -- | Throw an exception with an error string associated with an unsuccessful
 -- return code, otherwise return unit.
 --
+{-# INLINE nothingIfOk #-}
 nothingIfOk :: Status -> IO ()
 nothingIfOk status =
     case status of
         Success -> return  ()
         _       -> throwIO (ExitCode status)
+
+{-# INLINE checkStatus #-}
+checkStatus :: CInt -> IO ()
+checkStatus = nothingIfOk . cToEnum
 
