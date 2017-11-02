@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP                      #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE TemplateHaskell          #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Context
 -- Copyright   : [2014..2017] Trevor L. McDonell
@@ -17,11 +18,13 @@ module Foreign.CUDA.BLAS.Context (
   create, destroy,
 
   -- ** Utilities
-  PointerMode(..), AtomicsMode(..),
+  PointerMode(..), AtomicsMode(..), MathMode(..),
   setPointerMode,
   getPointerMode,
   setAtomicsMode,
   getAtomicsMode,
+  setMathMode,
+  getMathMode,
 
 ) where
 
@@ -89,11 +92,9 @@ import Control.Monad                            ( liftM )
 {-# INLINEABLE getPointerMode #-}
 {# fun unsafe cublasGetPointerMode_v2 as getPointerMode
   { useHandle `Handle'
-  , alloca-   `PointerMode' peekPM*
+  , alloca-   `PointerMode' peekEnum*
   }
   -> `()' checkStatus*- #}
-  where
-    peekPM = liftM cToEnum . peek
 
 
 -- | Set whether cuBLAS library functions are allowed to use atomic functions,
@@ -118,9 +119,43 @@ import Control.Monad                            ( liftM )
 {-# INLINEABLE getAtomicsMode #-}
 {# fun unsafe cublasGetAtomicsMode as getAtomicsMode
   { useHandle `Handle'
-  , alloca-   `AtomicsMode' peekAM*
+  , alloca-   `AtomicsMode' peekEnum*
   }
   -> `()' checkStatus*- #}
-  where
-    peekAM = liftM cToEnum . peek
+
+
+-- | Set whether cuBLAS library functions are allowed to use Tensor Core
+-- operations where available.
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublassetmathmode>
+--
+{-# INLINEABLE setMathMode #-}
+#if CUDA_VERSION < 9000
+setMathMode :: Handle -> MathMode -> IO ()
+setMathMode _ _ = requireSDK 'setMathMode 9.0
+#else
+{# fun unsafe cublasSetMathMode as setMathMode
+  { useHandle `Handle'
+  , cFromEnum `MathMode'
+  }
+  -> `()' checkStatus*- #}
+#endif
+
+
+-- | Determine whether cuBLAS library functions are allowed to use Tensor Core
+-- operations where available.
+--
+-- <http://docs.nvidia.com/cuda/cublas/index.html#cublasgetmathmode>
+--
+{-# INLINEABLE getMathMode #-}
+#if CUDA_VERSION < 9000
+getMathMode :: Handle -> IO MathMode
+getMathMode _ = requireSDK 'getMathMode 9.0
+#else
+{# fun unsafe cublasGetMathMode as getMathMode
+  { useHandle `Handle'
+  , alloca-   `MathMode' peekEnum*
+  }
+  -> `()' checkStatus*- #}
+#endif
 

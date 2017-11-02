@@ -120,10 +120,30 @@ data Type
 --
 #if CUDA_VERSION < 8000
 data GemmAlgorithm
-#else
+#elif CUDA_VERSION < 9000
 {# enum cublasGemmAlgo_t as GemmAlgorithm
   { underscoreToCase
   , CUBLAS_GEMM_DFALT as GemmDefault
+  }
+  with prefix="CUBLAS" deriving (Eq, Show) #}
+#else
+{# enum cublasGemmAlgo_t as GemmAlgorithm
+  { underscoreToCase
+  , CUBLAS_GEMM_DFALT   as CUBLAS_GEMM_DFALT
+  , CUBLAS_GEMM_DEFAULT as GemmDefault
+  }
+  with prefix="CUBLAS" deriving (Eq, Show) #}
+#endif
+
+
+-- | Enum for default math mode / tensor math mode
+--
+#if CUDA_VERSION < 9000
+data MathMode
+#else
+{# enum cublasMath_t as MathMode
+  { CUBLAS_DEFAULT_MATH   as DefaultMath
+  , CUBLAS_TENSOR_OP_MATH as TensorMath
   }
   with prefix="CUBLAS" deriving (Eq, Show) #}
 #endif
