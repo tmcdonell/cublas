@@ -129,6 +129,8 @@ import Control.Monad                            ( liftM )
 --
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublassetmathmode>
 --
+-- @since 0.4.0.0@
+--
 {-# INLINEABLE setMathMode #-}
 #if CUDA_VERSION < 9000
 setMathMode :: Handle -> MathMode -> IO ()
@@ -146,6 +148,8 @@ setMathMode _ _ = requireSDK 'setMathMode 9.0
 -- operations where available.
 --
 -- <http://docs.nvidia.com/cuda/cublas/index.html#cublasgetmathmode>
+--
+-- @since 0.4.0.0@
 --
 {-# INLINEABLE getMathMode #-}
 #if CUDA_VERSION < 9000
