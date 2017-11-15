@@ -8,16 +8,13 @@
 -- Portability : non-portable (GHC extensions)
 --
 
-module Foreign.CUDA.BLAS.Internal.C2HS (
-
-  -- * Conversion between C and Haskell types
-  cIntConv, cFloatConv, cToBool, cFromBool, cToEnum, cFromEnum,
-
-) where
+module Foreign.CUDA.BLAS.Internal.C2HS
+  where
 
 -- system
 import Foreign
 import Foreign.C
+import Control.Monad                            ( liftM )
 
 
 -- Conversions -----------------------------------------------------------------
@@ -67,4 +64,10 @@ cToEnum  = toEnum . cIntConv
 {-# INLINE cFromEnum #-}
 cFromEnum :: (Enum e, Integral i) => e -> i
 cFromEnum  = cIntConv . fromEnum
+
+-- | Peek a C value into a Haskell enumeration
+--
+{-# INLINE peekEnum #-}
+peekEnum :: (Enum a, Integral b, Storable b) => Ptr b -> IO a
+peekEnum = liftM cToEnum . peek
 
