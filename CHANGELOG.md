@@ -20,5 +20,5 @@ Policy (PVP)](https://pvp.haskell.org)
 * First version; replaces [bmsherman/cublas](https://github.com/bmsherman/cublas). Released on an unsuspecting world.
 
 
-[0.4.0.0]:          https://github.com/tmcdonell/cublas/compare/release/0.3.0.0...HEAD
+[0.4.0.0]:          https://github.com/tmcdonell/cublas/compare/release/0.3.0.0...0.4.0.0
 
