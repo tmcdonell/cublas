@@ -38,7 +38,7 @@ extra-deps:
 - 'dlist-0.8.0.4'
 - 'half-0.2.2.3'
 - 'happy-1.19.9'
-- 'language-c-0.7.1'
+- 'language-c-0.7.2'
 - 'primitive-0.6.3.0'
 - 'QuickCheck-2.11.3'
 - 'random-1.1'
