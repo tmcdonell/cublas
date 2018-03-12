@@ -187,7 +187,7 @@ getHookedBuildInfo verbosity = do
           notice verbosity $ printf "Provide a '%s' file to override this behaviour.\n" customBuildInfoFilePath
           readHookedBuildInfo verbosity generatedBuildInfoFilePath
         else
-          die $ printf "Unexpected failure. Neither the default %s nor custom %s exist.\n" generatedBuildInfoFilePath customBuildInfoFilePath
+          die' verbosity $ printf "Unexpected failure. Neither the default %s nor custom %s exist.\n" generatedBuildInfoFilePath customBuildInfoFilePath
 
 
 -- Replicate the default C2HS preprocessor hook here, and inject a value for
@@ -208,7 +208,7 @@ instance PPC2HS (BuildInfo -> LocalBuildInfo -> PreProcessor) where
       { platformIndependent = False
       , runPreProcessor     = \(inBaseDir, inRelativeFile)
                                (outBaseDir, outRelativeFile) verbosity ->
-          rawSystemProgramConf verbosity c2hsProgram (withPrograms lbi) . filter (not . null) $
+          runDbProgram verbosity c2hsProgram (withPrograms lbi) . filter (not . null) $
             maybe [] words (lookup "x-extra-c2hs-options" (customFieldsBI bi))
             ++ ["--include=" ++ outBaseDir]
             ++ ["--cppopts=" ++ opt | opt <- getCppOptions bi lbi]
@@ -246,5 +246,10 @@ versionInt v =
 #if MIN_VERSION_Cabal(1,25,0)
 versionBranch :: Version -> [Int]
 versionBranch = versionNumbers
+#endif
+
+#if !MIN_VERSION_Cabal(2,0,0)
+die' :: Verbosity -> String -> IO a
+die' _ = die
 #endif
 
