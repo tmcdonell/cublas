@@ -1,5 +1,5 @@
 name:                   cublas
-version:                0.4.0.1
+version:                0.5.0.0
 synopsis:               FFI bindings to the CUDA BLAS library
 description:
     The cuBLAS library is an implementation of BLAS (Basic Linear Algebra
@@ -79,6 +79,6 @@ source-repository head
 source-repository this
     type:               git
     location:           https://github.com/tmcdonell/cublas
-    tag:                0.4.0.1
+    tag:                0.5.0.0
 
 -- vim: nospell
