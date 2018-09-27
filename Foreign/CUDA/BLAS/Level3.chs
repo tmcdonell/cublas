@@ -561,14 +561,14 @@ scalEx _ _ _ _ _ _ _ _ = cublasError "'scalEx' requires at least cuda-8.0"
 #if CUDA_VERSION >= 9100
 
 {-# INLINEABLE gemmBatchedEx #-}
-{# fun unsafe cublasGemmBatchedEx as gemmBatchedEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr ()', useDevP `DevicePtr (DevicePtr ())', cFromEnum `Type', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr ()', useDevP `DevicePtr ()', cFromEnum `Type', `Int', `Int', cFromEnum `Type', cFromEnum `GemmAlgorithm' } -> `()' checkStatus* #}
+{# fun unsafe cublasGemmBatchedEx as gemmBatchedEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr ()', useDevP `DevicePtr (DevicePtr ())', cFromEnum `Type', `Int', useDevP `DevicePtr ()', cFromEnum `Type', `Int', castPtr `Ptr ()', useDevP `DevicePtr ()', cFromEnum `Type', `Int', `Int', cFromEnum `Type', cFromEnum `GemmAlgorithm' } -> `()' checkStatus* #}
 
 {-# INLINEABLE gemmStridedBatchedEx #-}
 {# fun unsafe cublasGemmStridedBatchedEx as gemmStridedBatchedEx { useHandle `Handle', cFromEnum `Operation', cFromEnum `Operation', `Int', `Int', `Int', castPtr `Ptr ()', useDevP `DevicePtr ()', cFromEnum `Type', `Int', `Int64', useDevP `DevicePtr ()', cFromEnum `Type', `Int', `Int64', castPtr `Ptr ()', useDevP `DevicePtr ()', cFromEnum `Type', `Int', `Int64', `Int', cFromEnum `Type', cFromEnum `GemmAlgorithm' } -> `()' checkStatus* #}
 #else
 
-gemmBatchedEx :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr () -> DevicePtr (DevicePtr ()) -> Type -> DevicePtr () -> Type -> Int -> Ptr () -> DevicePtr () -> Type -> Int -> Int -> Type -> GemmAlgorithm -> IO ()
-gemmBatchedEx _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'gemmBatchedEx' requires at least cuda-9.1"
+gemmBatchedEx :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr () -> DevicePtr (DevicePtr ()) -> Type -> Int -> DevicePtr () -> Type -> Int -> Ptr () -> DevicePtr () -> Type -> Int -> Int -> Type -> GemmAlgorithm -> IO ()
+gemmBatchedEx _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'gemmBatchedEx' requires at least cuda-9.1"
 
 gemmStridedBatchedEx :: Handle -> Operation -> Operation -> Int -> Int -> Int -> Ptr () -> DevicePtr () -> Type -> Int -> Int64 -> DevicePtr () -> Type -> Int -> Int64 -> Ptr () -> DevicePtr () -> Type -> Int -> Int64 -> Int -> Type -> GemmAlgorithm -> IO ()
 gemmStridedBatchedEx _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ = cublasError "'gemmStridedBatchedEx' requires at least cuda-9.1"

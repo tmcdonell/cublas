@@ -501,7 +501,7 @@ funsL3_cuda80 =
 funsL3_cuda91 :: [FunGroup]
 funsL3_cuda91 =
   [ gp  $          ext "gemmBatchedEx"
-                                    [ transpose, transpose, int, int, int, ptr void, dptr (dptr void), dtype, dptr void, dtype, int, ptr void, dptr void, dtype, int, int, dtype, TEnum "GemmAlgorithm" ]
+                                    [ transpose, transpose, int, int, int, ptr void, dptr (dptr void), dtype, int, dptr void, dtype, int, ptr void, dptr void, dtype, int, int, dtype, TEnum "GemmAlgorithm" ]
   , gp  $          ext "gemmStridedBatchedEx"
                                     [ transpose, transpose, int, int, int, ptr void, dptr void, dtype, int, int64, dptr void, dtype, int, int64, ptr void, dptr void, dtype, int, int64, int, dtype, TEnum "GemmAlgorithm" ]
   ]
