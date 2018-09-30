@@ -40,6 +40,7 @@ main = do
                                   ,(Just 7000, funsL3_cuda70)
                                   ,(Just 7500, funsL3_cuda75)
                                   ,(Just 8000, funsL3_cuda80)
+                                  ,(Just 9100, funsL3_cuda91)
                                   ]
 
 
@@ -493,6 +494,16 @@ funsL3_cuda80 =
   , gp  $          ext "dotEx"      [ int, dptr void, dtype, int, dptr void, dtype, int, ptr void, dtype, dtype ]
   , gp  $          ext "dotcEx"     [ int, dptr void, dtype, int, dptr void, dtype, int, ptr void, dtype, dtype ]
   , gp  $          ext "scalEx"     [ int, ptr void, dtype, dptr void, dtype, int, dtype ]
+  ]
+
+-- Level 3 operations introduced in CUDA-9.1
+--
+funsL3_cuda91 :: [FunGroup]
+funsL3_cuda91 =
+  [ gp  $          ext "gemmBatchedEx"
+                                    [ transpose, transpose, int, int, int, ptr void, dptr (dptr void), dtype, int, dptr void, dtype, int, ptr void, dptr void, dtype, int, int, dtype, TEnum "GemmAlgorithm" ]
+  , gp  $          ext "gemmStridedBatchedEx"
+                                    [ transpose, transpose, int, int, int, ptr void, dptr void, dtype, int, int64, dptr void, dtype, int, int64, ptr void, dptr void, dtype, int, int64, int, dtype, TEnum "GemmAlgorithm" ]
   ]
 
 
