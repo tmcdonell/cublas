@@ -79,6 +79,6 @@ source-repository head
 source-repository this
     type:               git
     location:           https://github.com/tmcdonell/cublas
-    tag:                0.5.0.0
+    tag:                v0.5.0.0
 
 -- vim: nospell
