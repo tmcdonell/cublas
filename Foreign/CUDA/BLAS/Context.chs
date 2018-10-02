@@ -163,3 +163,8 @@ getMathMode _ = requireSDK 'getMathMode 9.0
   -> `()' checkStatus*- #}
 #endif
 
+-- TODO: since CUDA-10.0
+--  cublasLoggerConfigure
+--  cublas[Get,Set]LoggerCallback
+--
+

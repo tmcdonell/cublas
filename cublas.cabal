@@ -1,5 +1,5 @@
 name:                   cublas
-version:                0.4.0.1
+version:                0.5.0.0
 synopsis:               FFI bindings to the CUDA BLAS library
 description:
     The cuBLAS library is an implementation of BLAS (Basic Linear Algebra
@@ -15,8 +15,8 @@ description:
 license:                BSD3
 license-file:           LICENSE
 author:                 Trevor L. McDonell, Ben Sherman
-maintainer:             Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
-copyright:              Copyright (c) [2012..2017]. Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>, Ben Sherman <benmsherman@gmail.com>
+maintainer:             Trevor L. McDonell <trevor.mcdonell@gmail.com>
+copyright:              Copyright (c) [2012..2017]. Trevor L. McDonell <trevor.mcdonell@gmail.com>, Ben Sherman <benmsherman@gmail.com>
 category:               Foreign
 cabal-version:          >=1.24
 
@@ -79,6 +79,6 @@ source-repository head
 source-repository this
     type:               git
     location:           https://github.com/tmcdonell/cublas
-    tag:                0.4.0.1
+    tag:                v0.5.0.0
 
 -- vim: nospell
