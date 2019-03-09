@@ -15,13 +15,13 @@ addons:
     sources:
       - hvr-ghc
     packages:
-      - happy-1.19.5
       - alex-3.1.7
+      - happy-1.19.5
 
 compiler:
-  - GHC-8.6.1
-  - GHC-8.4.1
-  - GHC-8.2.1
+  - GHC-8.6.3
+  - GHC-8.4.4
+  - GHC-8.2.2
   - GHC-8.0.2
   - GHC-7.10.3
   - GHC-7.8.4
@@ -29,6 +29,7 @@ compiler:
 env:
   # global:
   matrix:
+    - CUDA=10.1.105-1
     - CUDA=10.0.130-1
     - CUDA=8.0.61-1
     - CUDA=7.5-18
@@ -47,12 +48,12 @@ before_install:
   - source .travis/install-stack.sh
   - source .travis/update-ghc-settings.sh
 
-  # ghc-8.6 builds a broken version of c2hs
-  - |
-      if [ ${GHC%.*} == "8.6" -a ! -x "$(which c2hs)" ]; then
-        travis_retry stack --stack-yaml=stack-8.4.yaml setup --no-terminal --no-system-ghc
-        travis_retry stack --stack-yaml=stack-8.4.yaml install c2hs --fast --no-terminal
-      fi
+  # # ghc-8.6 builds a broken version of c2hs
+  # - |
+  #     if [ ${GHC%.*} == "8.6" -a ! -x "$(which c2hs)" ]; then
+  #       travis_retry stack --stack-yaml=stack-8.4.yaml setup --no-terminal --no-system-ghc
+  #       travis_retry stack --stack-yaml=stack-8.4.yaml install c2hs --fast --no-terminal
+  #     fi
 
   # build environment
   - echo "$(stack exec ghc -- --version) [$(stack exec ghc -- --print-project-git-commit-id 2> /dev/null || echo '?')]"
