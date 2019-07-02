@@ -7,8 +7,7 @@ packages:
 - .
 
 extra-deps:
-- git:    https://github.com/tmcdonell/cuda.git
-  commit: e430bccdd9eca72733a972e7eaa25a36289808b4
+- cuda-0.10.1.0
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

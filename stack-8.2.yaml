@@ -6,9 +6,7 @@ resolver: lts-11.22
 packages:
 - .
 
-extra-deps:
-- git:    https://github.com/tmcdonell/cuda.git
-  commit: e430bccdd9eca72733a972e7eaa25a36289808b4
+# extra-deps: []
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
