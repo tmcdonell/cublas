@@ -7,3 +7,4 @@
 /.stack-work
 /stack.yaml
 /cublas.buildinfo.generated
+/stack.yaml.lock
