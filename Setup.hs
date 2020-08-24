@@ -27,6 +27,7 @@ import Distribution.PackageDescription.Parse
 #endif
 
 import Foreign.CUDA.Path
+import Foreign.CUDA.Driver.Utils
 import System.Directory
 import System.FilePath
 import Text.Printf
@@ -50,6 +51,9 @@ staticLibs platform@(Platform _arch os) =
   case os of
     Windows -> dynamicLibs platform
     _       -> ["cublas_static", "culibos", "cudart_static", "pthread", "dl"]
+            ++ if libraryVersion > 10000
+                  then ["cublasLt_static"]
+                  else []
 
 dynamicLibs :: Platform -> [String]
 dynamicLibs _ = ["cublas"]
