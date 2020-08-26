@@ -6,7 +6,8 @@ resolver: lts-14.27
 packages:
 - .
 
-# extra-deps: []
+extra-deps:
+- cuda-0.10.2.0
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
