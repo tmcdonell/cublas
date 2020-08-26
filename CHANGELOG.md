@@ -7,6 +7,13 @@ project adheres to the [Haskell Package Versioning
 Policy (PVP)](https://pvp.haskell.org)
 
 
+## [0.6.0.0] - 2020-08-26
+### Added
+  * Added support for Cabal-3
+
+### Fixed
+  * Fixed linking with CUDA-10.x
+
 ## [0.5.0.0] - 2018-10-02
 ### Added
   * `gemm[Strided]BatchedEx` from CUDA-9.1
@@ -29,6 +36,7 @@ Policy (PVP)](https://pvp.haskell.org)
 * First version; replaces [bmsherman/cublas](https://github.com/bmsherman/cublas). Released on an unsuspecting world.
 
 
+[0.6.0.0]:          https://github.com/tmcdonell/cublas/compare/release/v0.5.0.0...v0.6.0.0
 [0.5.0.0]:          https://github.com/tmcdonell/cublas/compare/release/0.4.0.1...v0.5.0.0
 [0.4.0.1]:          https://github.com/tmcdonell/cublas/compare/release/0.4.0.0...0.4.0.1
 [0.4.0.0]:          https://github.com/tmcdonell/cublas/compare/release/0.3.0.0...0.4.0.0
