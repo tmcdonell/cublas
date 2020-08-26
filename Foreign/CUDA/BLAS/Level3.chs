@@ -8,10 +8,10 @@
 {-# OPTIONS_GHC -fno-warn-unused-binds #-}
 -- |
 -- Module      : Foreign.CUDA.BLAS.Level3
--- Copyright   : [2017] Trevor L. McDonell
+-- Copyright   : [2017..2020] Trevor L. McDonell
 -- License     : BSD3
 --
--- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
+-- Maintainer  : Trevor L. McDonell <trevor.mcdonell@gmail.com>
 -- Stability   : experimental
 -- Portability : non-portable (GHC extensions)
 --
