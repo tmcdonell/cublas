@@ -62,6 +62,8 @@ library
     , storable-complex                  >= 0.2
     , template-haskell
 
+  extra-libraries: stdc++
+
   build-tools:
       c2hs                              >= 0.16
 
