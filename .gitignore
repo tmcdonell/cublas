@@ -4,6 +4,7 @@
 /cublas.buildinfo
 /configure
 /dist/
+/dist-newstyle/
 /.stack-work
 /stack.yaml
 /cublas.buildinfo.generated
